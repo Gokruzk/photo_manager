@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function AboutMe() {
   return (
-    <div className="flex items-center justify-center min-h-screen from-gray-700 via-gray-800 to-gray-900 bg-gradient-to-br">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="relative w-full group max-w-md min-w-0 mx-auto mt-6 mb-6 break-words bg-white border shadow-2xl dark:bg-gray-800 dark:border-gray-700 md:max-w-sm rounded-xl">
         <div className="pb-6">
           <div className="flex relative pl-5 pt-5">
@@ -61,8 +61,8 @@ export default function AboutMe() {
               </div>
             </div>
           </div>
-          <div className="pt-6 mx-6 mt-6 text-center border-t border-gray-200 dark:border-gray-700/50">
-            <div className="flex flex-wrap justify-center">
+          <div className="pt-6 mx-6 mt-6 text-justify border-t border-gray-200 dark:border-gray-700/50">
+            <div className="flex flex-wrap">
               <div className="w-full px-6">
                 <p className="mb-4 font-light leading-relaxed text-gray-600 dark:text-gray-400">
                   Software Developer with over one year of experience, skilled
