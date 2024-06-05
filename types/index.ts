@@ -1,9 +1,17 @@
 export interface User {
-  cod_user: number;
   cod_ubi: number;
   username: string;
   email: string;
   password: string;
+  birth_date: string;
+}
+
+export interface User_ {
+  cod_ubi: number;
+  username: string;
+  email: string;
+  password: string;
+  birth_date: string;
 }
 
 export interface LinkButtonProps {
