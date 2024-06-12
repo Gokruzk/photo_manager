@@ -1,8 +1,10 @@
 import { User } from "@/types";
 import axios from "axios";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const userAPI = axios.create({
-  baseURL: "http://localhost:8888",
+  baseURL: API_URL,
 });
 
 //get users

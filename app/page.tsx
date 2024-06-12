@@ -1,6 +1,4 @@
-import { getCountries } from "@/api/countryAPI";
 import LinkButton from "@/components/LinkButton";
-import Link from "next/link";
 
 export default function Home() {
   return (
