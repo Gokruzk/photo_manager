@@ -1,6 +1,48 @@
+"use client";
+import { auth } from "@/api/userAPI";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+} from "@tanstack/react-query";
 import Link from "next/link";
 
-export default function LoginForm() {
+const queryClient = new QueryClient();
+
+export default function LoginF() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LoginForm />
+    </QueryClientProvider>
+  );
+}
+
+function LoginForm() {
+  const loginUser = async (formdata: FormData) => {
+    const username = formdata.get("username") as string;
+    const password = formdata.get("password") as string;
+    const user = {
+      username: username,
+      password: password,
+    };
+    addUserMutation.mutate({
+      ...user,
+    });
+  };
+  const addUserMutation = useMutation({
+    mutationFn: auth,
+    onSuccess: (data) => {
+      if (data.status === 200) {
+        alert("Login successfully");
+      } else {
+        alert(`Authentication failed, ${data.error}`);
+      }
+    },
+    onError: (error) => {
+      console.log(error)
+      alert("An error occurred during authentication");
+    },
+  });
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -17,7 +59,7 @@ export default function LoginForm() {
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Sign in to your account
             </h1>
-            <form className="space-y-4 md:space-y-6" action="#">
+            <form className="space-y-4 md:space-y-6" action={loginUser}>
               <div>
                 <label
                   htmlFor="email"
