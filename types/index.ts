@@ -24,3 +24,8 @@ export interface Country {
   cod_ubi: number;
   country: string;
 }
+
+export interface UserLogin{
+  username: string
+  password: string
+}
