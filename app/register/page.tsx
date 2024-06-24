@@ -1,4 +1,4 @@
-
+"use client"
 import { getCountries } from "@/api/countryAPI";
 import Link from "next/link";
 import {
