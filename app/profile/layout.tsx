@@ -12,7 +12,7 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
     (async () => {
       const { user, error } = await getUser();
       if (error) {
-        router.push("/");
+        router.push("/login");
       }
       //If the user is logged
       setIsSuccess(true);
