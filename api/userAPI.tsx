@@ -1,9 +1,10 @@
 "use server";
-import { SignJWT, jwtVerify } from "jose";
+import { jwtVerify } from "jose";
 import { User, UserLogin } from "@/types";
 import axios from "axios";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { COOKIE_NAME } from "@/constants";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const key = new TextEncoder().encode(process.env.NEXT_PUBLIC_SECRET_KEY);
@@ -29,10 +30,10 @@ export const auth = async (user: UserLogin) => {
     if (data.data["status_code"] != 401) {
       const token = data.data.result["token"];
       cookies().set({
-        name: "user",
+        name: COOKIE_NAME,
         value: token,
         httpOnly: true,
-        sameSite: "none",
+        sameSite: "strict",
         path: "/",
       });
       return { status: 200 };
@@ -46,29 +47,19 @@ export const auth = async (user: UserLogin) => {
 };
 
 export const logout = () => {
-  cookies().set({
-    name: "user",
-    value: "",
-    httpOnly: true,
-    sameSite: "none",
-    path: "/",
-  });
-};
-
-export const userMe = async (request: NextRequest) => {
-  const session = request.cookies.get("user");
-  if (!session) return null;
-  return await session;
-};
-
-export const getSession = async () => {
-  const token = {
-    headers: {
-      Authorization: "Bearer " + cookies().get("user")?.value,
-    },
-  };
-  const data = await userAPI.get("/user/me", token);
-  return data.data;
+  try {
+    cookies().set({
+      name: COOKIE_NAME,
+      value: "",
+      httpOnly: true,
+      sameSite: "strict",
+      path: "/",
+    });
+    return { status: 200 };
+  } catch (error) {
+    console.error("Error during authentication", error);
+  }
+  return { status: 404, error: "Invalid username or password" };
 };
 
 export async function decrypt(input: string): Promise<any> {
@@ -79,7 +70,7 @@ export async function decrypt(input: string): Promise<any> {
 }
 
 export async function updateSession(request: NextRequest) {
-  const session = request.cookies.get("user")?.value;
+  const session = request.cookies.get(COOKIE_NAME)?.value;
   if (!session) return;
 
   // Refresh the session so it doesn't expire
@@ -87,7 +78,7 @@ export async function updateSession(request: NextRequest) {
   parsed.exp = new Date(Date.now() + 10 * 1000);
   const res = NextResponse.next();
   res.cookies.set({
-    name: "user",
+    name: COOKIE_NAME,
     value: session,
     httpOnly: true,
     expires: parsed.exp,

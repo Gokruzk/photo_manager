@@ -1,4 +1,4 @@
-"use client";
+
 import { getCountries } from "@/api/countryAPI";
 import Link from "next/link";
 import {
@@ -27,7 +27,7 @@ const RegisterForm = () => {
     const password = formdata.get("password") as string;
     const birth = formdata.get("birth") as string;
     const ubi = formdata.get("countries") as string;
-    const ub = Number(ubi)
+    const ub = Number(ubi);
     const user = {
       cod_ubi: ub,
       cod_state: 1,
@@ -60,6 +60,20 @@ const RegisterForm = () => {
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
     refetchInterval: 2000, // Obtención en tiempo real cada 2 segundos
   });
+
+  function togglePasswordVisibility() {
+    const passwordInput = document.getElementById(
+      "password"
+    ) as HTMLInputElement | null;
+
+    if (passwordInput) {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+      } else {
+        passwordInput.type = "password";
+      }
+    }
+  }
 
   if (isLoading) return <div>Loading...</div>;
   else if (isError) return <div>Error {error.message}</div>;
@@ -147,35 +161,64 @@ const RegisterForm = () => {
               </select>
               <div>
                 <label
-                  htmlFor="username"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Your username
-                </label>
-                <input
-                  type="username"
-                  name="username"
-                  id="username"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="username"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="username"
+                  htmlFor="password"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Your password
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  id="password"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="••••••••"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Enter password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 px-3 py-2"
+                    onClick={togglePasswordVisibility}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-gray-400 dark:text-gray-300"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        className="hs-password-active:hidden"
+                        d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
+                      ></path>
+                      <path
+                        className="hs-password-active:hidden"
+                        d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+                      ></path>
+                      <path
+                        className="hs-password-active:hidden"
+                        d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+                      ></path>
+                      <line
+                        className="hs-password-active:hidden"
+                        x1="2"
+                        x2="22"
+                        y1="2"
+                        y2="22"
+                      ></line>
+                      <path
+                        className="hidden hs-password-active:block"
+                        d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
+                      ></path>
+                      <circle
+                        className="hidden hs-password-active:block"
+                        cx="12"
+                        cy="12"
+                        r="3"
+                      ></circle>
+                    </svg>
+                  </button>
+                </div>
               </div>
               <button
                 type="submit"

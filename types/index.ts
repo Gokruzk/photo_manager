@@ -1,3 +1,5 @@
+import { AxiosError } from "axios";
+
 export interface User {
   cod_ubi: number;
   username: string;
@@ -25,7 +27,12 @@ export interface Country {
   country: string;
 }
 
-export interface UserLogin{
-  username: string
-  password: string
+export interface UserLogin {
+  username: string;
+  password: string;
+}
+
+export interface UserResponse {
+  user: string | null;
+  error: AxiosError | null;
 }
