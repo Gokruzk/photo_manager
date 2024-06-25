@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { getCountries } from "@/api/countryAPI";
 import Link from "next/link";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { Country } from "@/types";
 import { addUser } from "@/api/userAPI";
+import { useRouter } from "next/navigation";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ export default function RegisterF() {
 }
 
 const RegisterForm = () => {
+  const router = useRouter();
   const registerUser = async (formdata: FormData) => {
     const username = formdata.get("username") as string;
     const email = formdata.get("email") as string;
@@ -43,8 +45,17 @@ const RegisterForm = () => {
   };
   const addUserMutation = useMutation({
     mutationFn: addUser,
-    onSuccess: () => {
-      alert("User registered");
+    onSuccess: (data) => {
+      if (data.status === 200) {
+        alert("User registered");
+        router.push("/profile");
+      } else {
+        alert(`Register failed, ${data.error}`);
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+      alert("An error occurred during registering");
     },
   });
 
@@ -77,6 +88,7 @@ const RegisterForm = () => {
 
   if (isLoading) return <div>Loading...</div>;
   else if (isError) return <div>Error {error.message}</div>;
+  
   return (
     <main className="bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -109,7 +121,22 @@ const RegisterForm = () => {
                   placeholder="email@email.com"
                   required
                 />
+                <label
+                  htmlFor="username"
+                  className="block mt-4 mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Your username
+                </label>
+                <input
+                  type="username"
+                  name="username"
+                  id="username"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="username"
+                  required
+                />
               </div>
+
               <label
                 htmlFor="birth"
                 className="block text-sm font-medium text-gray-900 dark:text-white"
