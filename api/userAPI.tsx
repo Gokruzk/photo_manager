@@ -13,15 +13,62 @@ const userAPI = axios.create({
   baseURL: API_URL,
 });
 
-//get users
+//get user
 
-export const getUsers = async () => {
-  const res = await userAPI.get("/user");
-  return res.data;
+export const getUser = async (username: string) => {
+  try {
+    const res = await userAPI.get(`/user/${username}`);
+    if (res.data["status_code"] != 400) {
+      return { status: 200, data: res.data };
+    } else {
+      return { status: 400, error: "The user does not exist" };
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return { status: 400, error: "The user does not exist" };
 };
 
 export const addUser = async (user: User) => {
-  userAPI.post("/user", user);
+  try {
+    const res = await userAPI.post("/user", user);
+    if (res.data["status_code"] != 401) {
+      cookies().set({
+        name: COOKIE_NAME,
+        value: res.data.result["token"],
+        httpOnly: true,
+        sameSite: "strict",
+        path: "/",
+      });
+      return { status: 200 };
+    } else {
+      return { status: 401, error: "Error while registering user" };
+    }
+  } catch (error) {
+    console.error("Error during register");
+  }
+  return { status: 401, error: "Error while registering user" };
+};
+
+export const updateUser = async (user: User) => {
+  try {
+    const res = await userAPI.put("/user", user);
+    if (res.data["status_code"] != 401) {
+      cookies().set({
+        name: COOKIE_NAME,
+        value: res.data.result["token"],
+        httpOnly: true,
+        sameSite: "strict",
+        path: "/",
+      });
+      return { status: 200 };
+    } else {
+      return { status: 401, error: "Error while updating user" };
+    }
+  } catch (error) {
+    console.error("Error during updating");
+  }
+  return { status: 401, error: "Error while updating user" };
 };
 
 export const auth = async (user: UserLogin) => {
