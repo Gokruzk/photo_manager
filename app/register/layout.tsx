@@ -10,7 +10,7 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   useEffect(() => {
     (async () => {
-      const { user, error } = await getUser();
+      const { error } = await getUserSession();
       if (error) {
         router.push("/register");
       }else{
@@ -38,7 +38,7 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
 
 export default ProfileLayout;
 
-async function getUser(): Promise<UserResponse> {
+async function getUserSession(): Promise<UserResponse> {
   try {
     const { data } = await axios.get("/me");
     return {
