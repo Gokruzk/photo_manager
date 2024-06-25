@@ -32,7 +32,26 @@ export interface UserLogin {
   password: string;
 }
 
+export interface UserName {
+  username: string | null
+}
+
 export interface UserResponse {
-  user: string | null;
+  user: UserName | null;
   error: AxiosError | null;
+}
+
+export interface UserState {
+  username: UserName | null;
+  authUser: (user: UserName) => void;
+  removeSession: () => void;
+}
+
+export interface UserState2 {
+  user: User | null;
+  authUser: (user: User) => void;
+}
+
+export interface UserCod {
+  [key: string]: any;
 }

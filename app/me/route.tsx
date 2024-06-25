@@ -20,7 +20,7 @@ export async function GET() {
   const data = await decrypt(value);
   try {
     const response = {
-      cod_user: data["cod_user"],
+      username: data["username"],
     };
     return new Response(JSON.stringify(response));
   } catch (error) {
