@@ -7,7 +7,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { Country } from "@/types";
+import { Country, User } from "@/types";
 import { addUser } from "@/api/userAPI";
 import { useRouter } from "next/navigation";
 
@@ -29,9 +29,9 @@ const RegisterForm = () => {
     const password = formdata.get("password") as string;
     const birth = formdata.get("birth") as string;
     const ubi = formdata.get("countries") as string;
-    const ub = Number(ubi);
-    const user = {
-      cod_ubi: ub,
+    const [codUbi] = ubi.split("-");
+    const user: User = {
+      cod_ubi: codUbi,
       cod_state: 1,
       username: username,
       email: email,
@@ -88,7 +88,7 @@ const RegisterForm = () => {
 
   if (isLoading) return <div>Loading...</div>;
   else if (isError) return <div>Error {error.message}</div>;
-  
+
   return (
     <main className="bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -178,9 +178,12 @@ const RegisterForm = () => {
                 <option defaultValue={"Choose a country"}>
                   Choose a country
                 </option>
-                {countries.map((country: Country) => {
+                {countries?.data.map((country: Country) => {
                   return (
-                    <option key={country.cod_ubi} value={country.cod_ubi}>
+                    <option
+                      key={country.cod_ubi}
+                      value={`${country.cod_ubi}-${country.country}`}
+                    >
                       {country.country}
                     </option>
                   );

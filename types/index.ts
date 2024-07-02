@@ -1,7 +1,9 @@
 import { AxiosError } from "axios";
 
 export interface User {
-  cod_ubi: number;
+  cod_user?: string;
+  cod_ubi: string;
+  cod_state?: number;
   username: string;
   email: string;
   password: string;
@@ -9,7 +11,9 @@ export interface User {
 }
 
 export interface User_ {
+  cod_user: string;
   cod_ubi: number;
+  country?: string;
   username: string;
   email: string;
   password: string;
@@ -33,25 +37,32 @@ export interface UserLogin {
 }
 
 export interface UserName {
-  username: string | null
+  username: string;
 }
 
 export interface UserResponse {
-  user: UserName | null;
+  user?: UserName;
   error: AxiosError | null;
 }
 
-export interface UserState {
+export interface UserSt {
   username: UserName | null;
   authUser: (user: UserName) => void;
   removeSession: () => void;
 }
 
-export interface UserState2 {
-  user: User | null;
-  authUser: (user: User) => void;
+export interface UserState {
+  user: User_ | null;
+  authUser: (user: User_) => void;
+  removeSession: () => void;
 }
 
-export interface UserCod {
-  [key: string]: any;
+export interface UserDates {
+  cod_date: number;
+  cod_user: number;
+  cod_description: number;
+  description: {
+    cod_description: number;
+    description: string;
+  };
 }

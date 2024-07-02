@@ -1,9 +1,8 @@
 "use client";
-import { auth, getUser, logout } from "@/api/userAPI";
+import { getUser, logout } from "@/api/userAPI";
 import LinkButton from "@/components/LinkButton";
-import useStore from "@/store/auth/authStore";
 import userStore from "@/store/auth/userStore";
-import { UserName } from "@/types";
+import { UserDates, UserName, User_ } from "@/types";
 import {
   QueryClient,
   QueryClientProvider,
@@ -11,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
@@ -24,21 +24,15 @@ export default function Profile() {
 
 const ProfilePage = () => {
   const router = useRouter();
-  const removeSession = useStore();
+  const { removeSession } = userStore();
   const authUser = userStore((state) => state.authUser);
 
-  let user_code = JSON.stringify(useStore((state) => state.username));
-  const obj_usercode = JSON.parse(user_code);
+  let user_code = userStore((state) => state.user);
 
-  let username: [string, any][] = [];
-  if (user_code !== null) {
-    username = Object.keys(obj_usercode).map((key) => [
-      key,
-      obj_usercode[key as keyof UserName],
-    ]);
+  let user_name = "";
+  if (user_code) {
+    user_name = user_code.username;
   }
-
-  user_code = username[0][1];
 
   const {
     isLoading,
@@ -46,25 +40,52 @@ const ProfilePage = () => {
     isError,
     error,
   } = useQuery({
-    queryKey: ["user", user_code],
-    queryFn: () => getUser(user_code),
+    queryKey: ["user", user_name],
+    queryFn: () => getUser(user_name),
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
+    refetchInterval: 3000, // Obtención en tiempo real cada 2 segundos
   });
 
-  const user_info = {
-    cod_ubi: user?.data["result"]["cod_ubi"] as number,
-    username: user?.data["result"]["username"] as string,
-    email: user?.data["result"]["email"] as string,
-    password: "" as string,
-    birth_date: "" as string,
-  };
-  
-  authUser(user_info);
+  let b: number = 0,
+    c: number = 0,
+    m: number = 0;
 
-  const handleLogout = async () => {
-    const result = await logout();
+  user?.data["User_Dates"].map((date: UserDates) => {
+    if (date.description.description == "birthday") {
+      b = date.cod_date;
+    }
+    if (date.description.description == "modified") {
+      m = date.cod_date;
+    }
+    if (date.description.description == "created") {
+      c = date.cod_date;
+    }
+  });
+
+  useEffect(() => {
+    if (user) {
+      const b = user.data.User_Dates.find(
+        (date: UserDates) => date.description.description === "birthday"
+      )?.cod_date;
+      const user_info: User_ = {
+        cod_user: user.data.cod_user,
+        cod_ubi: user.data.ubication.cod_ubi,
+        country: user.data.ubication.country,
+        username: user.data.username,
+        email: user.data.email,
+        password: "",
+        birth_date: b?.toString() ?? "",
+      };
+      authUser(user_info);
+    }
+  }, [user, authUser]);
+
+  const handleLogout = () => {
+    const result = logout();
     if (result.status === 200) {
-      removeSession;
-      router.push("/login");
+      removeSession();
+      router.push("/profile");
     } else {
       console.error(result.error);
     }
@@ -87,7 +108,7 @@ const ProfilePage = () => {
               </Link>
             </p>
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-              Welcome: {user_info.username}
+              Welcome: {user_code?.username}
             </h1>
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"

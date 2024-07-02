@@ -1,7 +1,7 @@
 "use client";
-
-import useStore from "@/store/auth/authStore";
-import { UserResponse } from "@/types";
+import { getUser, updateSessionLocal } from "@/api/userAPI";
+import userStore from "@/store/auth/userStore";
+import { UserResponse, User_ } from "@/types";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const router = useRouter();
-  const authUser = useStore((state) => state.authUser);
+  const authUser = userStore((state) => state.authUser);
 
   useEffect(() => {
     (async () => {
@@ -17,8 +17,22 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
       if (error) {
         router.push("/login");
       } else if (user) {
-        authUser(user);
-        setIsSuccess(true);
+        const us = await getUser(user.username).then((data) => {
+          return data;
+        });
+        if (us.status === 200) {
+          const newUser: User_ = {
+            cod_user: us.data.cod_user,
+            cod_ubi: us.data.cod_ubi,
+            country: us.data.ubication.country,
+            username: us.data.username,
+            email: us.data.email,
+            password: "",
+            birth_date: us.data.birth_date,
+          };
+          authUser(newUser);
+          setIsSuccess(true);
+        }
       }
     })();
   }, [router, authUser]);
@@ -46,7 +60,6 @@ async function getUserSession(): Promise<UserResponse> {
     return { user: data, error: null };
   } catch (e) {
     return {
-      user: null,
       error: e as AxiosError,
     };
   }

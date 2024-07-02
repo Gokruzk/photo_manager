@@ -1,6 +1,6 @@
 "use server";
 import { jwtVerify } from "jose";
-import { User, UserLogin } from "@/types";
+import { User, UserLogin, User_ } from "@/types";
 import axios from "axios";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -18,8 +18,8 @@ const userAPI = axios.create({
 export const getUser = async (username: string) => {
   try {
     const res = await userAPI.get(`/user/${username}`);
-    if (res.data["status_code"] != 400) {
-      return { status: 200, data: res.data };
+    if (res.data.status_code != 204) {
+      return { status: 200, data: res.data.result };
     } else {
       return { status: 400, error: "The user does not exist" };
     }
@@ -32,13 +32,14 @@ export const getUser = async (username: string) => {
 export const addUser = async (user: User) => {
   try {
     const res = await userAPI.post("/user", user);
-    if (res.data["status_code"] != 401) {
+    if (res.data.status_code != 401) {
       cookies().set({
         name: COOKIE_NAME,
         value: res.data.result["token"],
         httpOnly: true,
         sameSite: "strict",
         path: "/",
+        maxAge: 60 * 60,
       });
       return { status: 200 };
     } else {
@@ -50,23 +51,28 @@ export const addUser = async (user: User) => {
   return { status: 401, error: "Error while registering user" };
 };
 
-export const updateUser = async (user: User) => {
+export const updateUser = async (username: string, user: User_) => {
   try {
-    const res = await userAPI.put("/user", user);
-    if (res.data["status_code"] != 401) {
-      cookies().set({
-        name: COOKIE_NAME,
-        value: res.data.result["token"],
-        httpOnly: true,
-        sameSite: "strict",
-        path: "/",
+    console.log(user)
+    const res = await userAPI.put(`/user/${username}`, user);
+    if (res.data.status_code != 400) {
+      const au_res = await auth({
+        username: user.username,
+        password: user.password,
       });
+      if (au_res.status == 200) {
+        updateSessionLocal(au_res.token);
+        return { status: 200, token: au_res.token };
+      }
       return { status: 200 };
     } else {
-      return { status: 401, error: "Error while updating user" };
+      return {
+        status: 401,
+        error: `Error while updating user. Detail: ${res.data.detail}`,
+      };
     }
   } catch (error) {
-    console.error("Error during updating");
+    console.error("Error during updating", error);
   }
   return { status: 401, error: "Error while updating user" };
 };
@@ -74,16 +80,17 @@ export const updateUser = async (user: User) => {
 export const auth = async (user: UserLogin) => {
   try {
     const data = await userAPI.post("/auth/signin", user);
-    if (data.data["status_code"] != 401) {
-      const token = data.data.result["token"];
+    if (data.data.status_code != 401) {
+      const token = data.data.result.token;
       cookies().set({
         name: COOKIE_NAME,
         value: token,
         httpOnly: true,
         sameSite: "strict",
         path: "/",
+        maxAge: 60 * 60,
       });
-      return { status: 200 };
+      return { status: 200, token: token };
     } else {
       return { status: 404, error: "Invalid username or password" };
     }
@@ -128,7 +135,20 @@ export async function updateSession(request: NextRequest) {
     name: COOKIE_NAME,
     value: session,
     httpOnly: true,
-    expires: parsed.exp,
+    sameSite: "strict",
+    path: "/",
+    maxAge: 60 * 60,
   });
   return res;
+}
+
+export async function updateSessionLocal(cookie: string) {
+  cookies().set({
+    name: COOKIE_NAME,
+    value: cookie,
+    httpOnly: true,
+    sameSite: "strict",
+    path: "/",
+    maxAge: 60 * 60,
+  });
 }

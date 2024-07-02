@@ -1,9 +1,9 @@
-import { User, UserState2 } from "@/types";
+import { User_, UserState } from "@/types";
 import { create } from "zustand";
 
-const userStore = create<UserState2>((set) => ({
+const userStore = create<UserState>((set) => ({
   user: null,
-  authUser: (user: User) => set({ user }),
+  authUser: (user: User_) => set({ user }),
   removeSession: () => set({ user: null }),
 }));
 

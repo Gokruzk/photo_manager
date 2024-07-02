@@ -1,19 +1,22 @@
 "use client";
 
+import useStore from "@/store/auth/authStore";
 import { UserResponse } from "@/types";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
+  const authUser = useStore((state) => state.authUser);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const router = useRouter();
   useEffect(() => {
     (async () => {
-      const { error } = await getUserSession();
+      const { user, error } = await getUserSession();
       if (error) {
         router.push("/login");
-      } else {
+      } else if (user) {
+        authUser(user);
         router.push("/profile");
       }
       //If the user is logged
@@ -47,7 +50,6 @@ async function getUserSession(): Promise<UserResponse> {
     };
   } catch (e) {
     return {
-      user: null,
       error: e as AxiosError,
     };
   }

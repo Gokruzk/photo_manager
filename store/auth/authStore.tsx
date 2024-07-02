@@ -1,7 +1,7 @@
-import { UserName, UserState } from "@/types";
+import { UserName, UserSt } from "@/types";
 import { create } from "zustand";
 
-const useStore = create<UserState>((set) => ({
+const useStore = create<UserSt>((set) => ({
   username: null,
   authUser: (username: UserName) => set({ username }),
   removeSession: () => set({ username: null }),

@@ -13,7 +13,7 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
       const { error } = await getUserSession();
       if (error) {
         router.push("/register");
-      }else{
+      } else {
         router.push("/profile");
       }
       //If the user is logged
@@ -47,7 +47,6 @@ async function getUserSession(): Promise<UserResponse> {
     };
   } catch (e) {
     return {
-      user: null,
       error: e as AxiosError,
     };
   }
