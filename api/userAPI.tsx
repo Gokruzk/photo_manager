@@ -53,7 +53,6 @@ export const addUser = async (user: User) => {
 
 export const updateUser = async (username: string, user: User_) => {
   try {
-    console.log(user)
     const res = await userAPI.put(`/user/${username}`, user);
     if (res.data.status_code != 400) {
       const au_res = await auth({
@@ -64,6 +63,30 @@ export const updateUser = async (username: string, user: User_) => {
         updateSessionLocal(au_res.token);
         return { status: 200, token: au_res.token };
       }
+      return { status: 200 };
+    } else {
+      return {
+        status: 401,
+        error: `Error while updating user. Detail: ${res.data.detail}`,
+      };
+    }
+  } catch (error) {
+    console.error("Error during updating", error);
+  }
+  return { status: 401, error: "Error while updating user" };
+};
+
+export const deleteUser = async (username: string) => {
+  try {
+    const res = await userAPI.delete(`/user/${username}`);
+    if (res.data.status_code != 400) {
+      cookies().set({
+        name: COOKIE_NAME,
+        value: "",
+        httpOnly: true,
+        sameSite: "strict",
+        path: "/",
+      });
       return { status: 200 };
     } else {
       return {

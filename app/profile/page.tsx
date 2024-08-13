@@ -1,8 +1,8 @@
 "use client";
-import { getUser, logout } from "@/api/userAPI";
+import { deleteUser, getUser, logout } from "@/api/userAPI";
 import LinkButton from "@/components/LinkButton";
 import userStore from "@/store/auth/userStore";
-import { UserDates, UserName, User_ } from "@/types";
+import { UserDates, User_ } from "@/types";
 import {
   QueryClient,
   QueryClientProvider,
@@ -24,7 +24,6 @@ export default function Profile() {
 
 const ProfilePage = () => {
   const router = useRouter();
-  const { removeSession } = userStore();
   const authUser = userStore((state) => state.authUser);
 
   let user_code = userStore((state) => state.user);
@@ -81,13 +80,24 @@ const ProfilePage = () => {
     }
   }, [user, authUser]);
 
-  const handleLogout = () => {
-    const result = logout();
+  const handleLogout = async () => {
+    const result = await logout();
     if (result.status === 200) {
-      removeSession();
-      router.push("/profile");
+      router.push("/");
     } else {
       console.error(result.error);
+    }
+  };
+
+  const deleteAccount = async () => {
+    const res = confirm("Are you sure?");
+    if (res) {
+      const result = await deleteUser(user_name);
+      if (result.status === 200) {
+        router.push("/");
+      } else {
+        console.error(result.error);
+      }
     }
   };
 
@@ -121,14 +131,15 @@ const ProfilePage = () => {
               href="/editprofile"
               style="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"
             />
-            <LinkButton
-              title="Delete account"
-              href="#"
-              style="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"
-            />
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"
+              onClick={deleteAccount}
+            >
+              Delete account
+            </button>
             <LinkButton
               title="Manage albums"
-              href="#"
+              href="/albums"
               style="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"
             />
           </div>
