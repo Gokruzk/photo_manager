@@ -132,14 +132,14 @@ const ProfilePage = () => {
               style="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"
             />
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 m-3 rounded"
               onClick={deleteAccount}
             >
               Delete account
             </button>
             <LinkButton
-              title="Manage albums"
-              href="/albums"
+              title="Manage album"
+              href="/album"
               style="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"
             />
           </div>
