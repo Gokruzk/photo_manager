@@ -7,11 +7,12 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { Country, User, User_ } from "@/types";
-import { updateUser } from "@/api/userAPI";
-import userStore from "@/store/auth/userStore";
+import { Country, User_Retrieve, User_ } from "@/types";
+import { getUser, updateUser } from "@/api/userAPI";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { getUserSession } from "@/utils/userSession";
+import { useCallback, useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
@@ -24,31 +25,58 @@ export default function Edit() {
 }
 
 function ProfileEdit() {
+  const [user_retrieve, setUserRetrieve] = useState<User_Retrieve>();
+  const [current_user, setCurrentuser] = useState<string>();
+  const { register, handleSubmit, reset } = useForm();
   const router = useRouter();
-  const user = userStore((state) => state.user);
-  console.log(user)
-  const { register, handleSubmit } = useForm();
 
-  let user_edit: User_ = {
-    cod_user: "",
-    cod_ubi: 0,
-    username: "",
-    email: "",
-    password: "",
-    birth_date: "",
-  };
+  const user_session = useCallback(async () => {
+    const { user } = await getUserSession();
+    setCurrentuser(user?.username);
+  }, [setCurrentuser]);
 
-  if (user) {
-    user_edit = {
-      cod_user: user.cod_user,
-      cod_ubi: user.cod_ubi,
-      country: user.country,
-      username: user.username,
-      email: user.email,
-      password: user.password,
-      birth_date: user.birth_date,
-    };
-  }
+  useEffect(() => {
+    user_session();
+  }, [user_session]);
+
+  const {
+    isLoading,
+    data: user,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["user", current_user],
+    queryFn: () => {
+      if (current_user) {
+        return getUser(current_user);
+      } else {
+        return Promise.resolve(null);
+      }
+    },
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
+    refetchInterval: 2000, // Obtención en tiempo real cada 2 segundos
+  });
+
+  useEffect(() => {
+    if (user) {
+      setUserRetrieve(user.data);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user_retrieve) {
+      // Actualiza los valores del formulario cuando los datos del usuario estén disponibles
+      reset({
+        email: user_retrieve.email || "",
+        username: user_retrieve.username || "",
+        birth: parsedBirthdate || "",
+        countries:
+          `${user_retrieve.ubication.cod_ubi}-${user_retrieve.ubication.country}` ||
+          "",
+      });
+    }
+  }, [user_retrieve, reset]);
 
   const updateData = async (formdata: any) => {
     const username = formdata.username;
@@ -57,21 +85,25 @@ function ProfileEdit() {
     const ubi = formdata.countries;
     const [codUbi] = ubi.split("-");
     const birth = formdata.birth;
-    const user = {
-      cod_user: user_edit.cod_user,
-      cod_ubi: codUbi,
-      cod_state: 1,
-      username: username,
-      email: email,
-      password: password,
-      birth_date: birth,
-    };
-    addUserMutation.mutate(user);
+
+    if (user_retrieve) {
+      const user = {
+        cod_user: user_retrieve?.cod_user,
+        cod_ubi: codUbi,
+        cod_state: 1,
+        username: username,
+        email: email,
+        password: password,
+        birth_date: birth,
+      };
+      addUserMutation.mutate(user);
+    }
   };
 
   const addUserMutation = useMutation({
-    mutationFn: (userr: User_) => {
-      return updateUser(user_edit.username, userr);
+    mutationFn: (user: User_) => {
+      const username = user_retrieve?.username ?? "None";
+      return updateUser(username, user);
     },
     onSuccess: (data) => {
       if (data.status === 200) {
@@ -119,7 +151,7 @@ function ProfileEdit() {
     }
   }
 
-  function parseCustomDate(fecha: string | undefined): string {
+  function parseCustomDate(fecha: string): string {
     if (fecha) {
       const year = fecha.slice(0, 4);
       const month = fecha.slice(4, 6);
@@ -129,10 +161,18 @@ function ProfileEdit() {
     return "";
   }
 
-  const birthdate = parseCustomDate(user_edit.birth_date);
+  const birthdate = user_retrieve?.User_Dates.find(
+    (date) => date.cod_description === 3
+  )?.cod_date;
 
-  if (loadingCountries) return <div>Loading...</div>;
+  const parsedBirthdate = birthdate
+    ? parseCustomDate(birthdate.toString())
+    : null;
+
+  if (isLoading) return <div>Loading...</div>;
+  else if (loadingCountries) return <div>Loading...</div>;
   else if (errorC) return <div>Error {errorM && errorM.message}</div>;
+  else if (isError) return <div>Error {error.message}</div>;
 
   return (
     <main className="bg-gray-50 dark:bg-gray-900">
@@ -166,7 +206,7 @@ function ProfileEdit() {
                   id="email"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="email@email.com"
-                  defaultValue={user_edit.email}
+                  defaultValue={user_retrieve?.email}
                   required
                   {...register("email")}
                 />
@@ -181,7 +221,7 @@ function ProfileEdit() {
                   id="username"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="username"
-                  defaultValue={user_edit.username}
+                  defaultValue={user_retrieve?.username}
                   required
                   {...register("username")}
                 />
@@ -210,7 +250,7 @@ function ProfileEdit() {
                   type="date"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Select date"
-                  defaultValue={birthdate}
+                  defaultValue={parsedBirthdate?.toString()}
                   {...register("birth")}
                 />
               </div>
@@ -225,23 +265,16 @@ function ProfileEdit() {
                 id="countries"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 {...register("countries")}
+                defaultValue={`${user_retrieve?.ubication.cod_ubi}-${user_retrieve?.ubication.country}`}
               >
-                <option
-                  key={user_edit.cod_ubi}
-                  value={`${user_edit.cod_ubi}-${user_edit.country}`}
-                >
-                  {user_edit.country}
-                </option>
-                {countries?.data.map((country: Country) => {
-                  return (
-                    <option
-                      key={country.cod_ubi}
-                      value={`${country.cod_ubi}-${country.country}`}
-                    >
-                      {country.country}
-                    </option>
-                  );
-                })}
+                {countries?.data.map((country: Country) => (
+                  <option
+                    key={country.cod_ubi}
+                    value={`${country.cod_ubi}-${country.country}`}
+                  >
+                    {country.country}
+                  </option>
+                ))}
               </select>
 
               <div>
@@ -308,7 +341,7 @@ function ProfileEdit() {
               </div>
               <button
                 type="submit"
-                className="bg-blue-500 hover:bg-blue-700 w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Update
               </button>

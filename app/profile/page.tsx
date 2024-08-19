@@ -2,7 +2,8 @@
 import { deleteUser, getUser, logout } from "@/api/userAPI";
 import LinkButton from "@/components/LinkButton";
 import userStore from "@/store/auth/userStore";
-import { UserDates, User_ } from "@/types";
+import { UserDates, User_, UserName } from "@/types";
+import { getUserSession } from "@/utils/userSession";
 import {
   QueryClient,
   QueryClientProvider,
@@ -10,7 +11,7 @@ import {
 } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
@@ -23,62 +24,37 @@ export default function Profile() {
 }
 
 const ProfilePage = () => {
+  const [current_user, setCurrentuser] = useState<string>();
+  const [isLoading, setIsloading] = useState(true);
   const router = useRouter();
-  const authUser = userStore((state) => state.authUser);
 
-  let user_code = userStore((state) => state.user);
+  // const {
+  //   isLoading,
+  //   data: user,
+  //   isError,
+  //   error,
+  // } = useQuery({
+  //   queryKey: ["user", current_user],
+  //   queryFn: () => {
+  //     if (current_user) {
+  //       return getUser(current_user);
+  //     } else {
+  //       return Promise.resolve(null); // Devuelve un valor por defecto si current_user es undefined
+  //     }
+  //   },
+  //   retry: 3,
+  //   retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
+  //   refetchInterval: 3000, // Obtención en tiempo real cada 2 segundos
+  // });
 
-  let user_name = "";
-  if (user_code) {
-    user_name = user_code.username;
-  }
-
-  const {
-    isLoading,
-    data: user,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["user", user_name],
-    queryFn: () => getUser(user_name),
-    retry: 3,
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
-    refetchInterval: 3000, // Obtención en tiempo real cada 2 segundos
-  });
-
-  let b: number = 0,
-    c: number = 0,
-    m: number = 0;
-
-  user?.data["User_Dates"].map((date: UserDates) => {
-    if (date.description.description == "birthday") {
-      b = date.cod_date;
-    }
-    if (date.description.description == "modified") {
-      m = date.cod_date;
-    }
-    if (date.description.description == "created") {
-      c = date.cod_date;
-    }
-  });
+  const user_session = useCallback(async () => {
+    const { user } = await getUserSession();
+    setCurrentuser(user?.username);
+  }, []);
 
   useEffect(() => {
-    if (user) {
-      const b = user.data.User_Dates.find(
-        (date: UserDates) => date.description.description === "birthday"
-      )?.cod_date;
-      const user_info: User_ = {
-        cod_user: user.data.cod_user,
-        cod_ubi: user.data.ubication.cod_ubi,
-        country: user.data.ubication.country,
-        username: user.data.username,
-        email: user.data.email,
-        password: "",
-        birth_date: b?.toString() ?? "",
-      };
-      authUser(user_info);
-    }
-  }, [user, authUser]);
+    user_session();
+  }, [user_session]);
 
   const handleLogout = async () => {
     const result = await logout();
@@ -91,8 +67,8 @@ const ProfilePage = () => {
 
   const deleteAccount = async () => {
     const res = confirm("Are you sure?");
-    if (res) {
-      const result = await deleteUser(user_name);
+    if (res && current_user) {
+      const result = await deleteUser(current_user);
       if (result.status === 200) {
         router.push("/");
       } else {
@@ -101,8 +77,10 @@ const ProfilePage = () => {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  else if (isError) return <div>Error {error.message}</div>;
+  if (isLoading) {
+    setIsloading(false)
+    return <div>Loading...</div>;
+  }
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -118,7 +96,7 @@ const ProfilePage = () => {
               </Link>
             </p>
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-              Welcome: {user_code?.username}
+              Welcome: {current_user}
             </h1>
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"

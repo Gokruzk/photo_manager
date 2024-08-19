@@ -2,6 +2,7 @@
 import { getUser, updateSessionLocal } from "@/api/userAPI";
 import userStore from "@/store/auth/userStore";
 import { UserResponse, User_ } from "@/types";
+import { getUserSession } from "@/utils/userSession";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -28,7 +29,7 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
             username: us.data.username,
             email: us.data.email,
             password: "",
-            birth_date: us.data.birth_date,
+            birth_date: us.data.User_Dates[2],
           };
           authUser(newUser);
           setIsSuccess(true);
@@ -53,14 +54,3 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default ProfileLayout;
-
-async function getUserSession(): Promise<UserResponse> {
-  try {
-    const { data } = await axios.get("/me");
-    return { user: data, error: null };
-  } catch (e) {
-    return {
-      error: e as AxiosError,
-    };
-  }
-}
