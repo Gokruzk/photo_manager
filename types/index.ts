@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
 
 export interface User {
-  cod_user?: string;
+  cod_user?: number;
   cod_ubi: string;
   cod_state?: number;
   username: string;
@@ -11,8 +11,9 @@ export interface User {
 }
 
 export interface User_ {
-  cod_user: string;
+  cod_user: number;
   cod_ubi: number;
+  cod_state: number
   country?: string;
   username: string;
   email: string;
@@ -65,4 +66,27 @@ export interface UserDates {
     cod_description: number;
     description: string;
   };
+}
+
+interface Description{
+  cod_description: number
+  description: string
+}
+
+interface User_Dates {
+  cod_date: number;
+  cod_user: number
+  cod_description: number
+  description: Description
+}
+
+export interface User_Retrieve {
+  cod_user: number;
+  cod_ubi: number;
+  cod_state: number
+  username: string;
+  email: string;
+  password: string;
+  ubication: Country;
+  User_Dates: User_Dates[];
 }
