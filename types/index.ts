@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
 
+// Interface para la información de usuario básica
 export interface User {
   cod_user?: number;
   cod_ubi: string;
@@ -7,57 +8,61 @@ export interface User {
   username: string;
   email: string;
   password: string;
-  birth_date: string;
+  birthdate: string;
 }
 
-export interface User_ {
+// Interface para la información de usuario extendida
+export interface UserDetail {
   cod_user: number;
   cod_ubi: number;
-  cod_state: number
+  cod_state: number;
   country?: string;
   username: string;
   email: string;
   password: string;
-  birth_date: string;
+  birthdate: string;
 }
 
+// Props para el componente LinkButton
 export interface LinkButtonProps {
   title: string;
   href: string;
   style: string;
 }
 
+// Información de país
 export interface Country {
   cod_ubi: number;
   country: string;
 }
 
+// Datos para el login de usuario
 export interface UserLogin {
   username: string;
   password: string;
 }
 
-export interface UserName {
-  username: string;
-}
-
+// Respuesta de usuario para la autenticación
 export interface UserResponse {
-  user?: UserName;
+  user?: { username: string };
   error: AxiosError | null;
 }
 
-export interface UserSt {
-  username: UserName | null;
-  authUser: (user: UserName) => void;
+// Estado del usuario para la autenticación
+export interface AuthState {
+  username: string | null;
+  authUser: (user: { username: string }) => void;
   removeSession: () => void;
 }
 
+// Estado del usuario con detalles completos
 export interface UserState {
-  user: User_ | null;
-  authUser: (user: User_) => void;
+  user: UserDetail | null;
+  authUser: (user: UserDetail) => void;
   removeSession: () => void;
 }
 
+// Información de fechas asociadas a un usuario
 export interface UserDates {
   cod_date: number;
   cod_user: number;
@@ -68,25 +73,21 @@ export interface UserDates {
   };
 }
 
-interface Description{
-  cod_description: number
-  description: string
-}
-
-interface User_Dates {
-  cod_date: number;
-  cod_user: number
-  cod_description: number
-  description: Description
-}
-
-export interface User_Retrieve {
+// Información completa del usuario recuperado
+export interface UserRetrieve {
   cod_user: number;
   cod_ubi: number;
-  cod_state: number
+  cod_state: number;
   username: string;
   email: string;
   password: string;
   ubication: Country;
-  User_Dates: User_Dates[];
+  User_Dates: UserDates[];
+}
+
+// Respuesta para obtener un usuario
+export interface GetUser {
+  status: number;
+  data?: UserRetrieve;
+  error?: string;
 }

@@ -1,11 +1,12 @@
 "use client";
 import LinkButton from "@/components/LinkButton";
-import userStore from "@/store/auth/userStore";
+import { getUserSession } from "@/utils/userSession";
 import {
   QueryClient,
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
@@ -18,12 +19,13 @@ export default function Profile() {
 }
 
 const ProfilePage = () => {
-  let current_user = userStore((state) => state.user);
-
-  let user_name = "";
-  if (current_user) {
-    user_name = current_user.username;
-  }
+  const [currentUser, setCurrentUser] = useState<string>();
+  useEffect(() => {
+    (async () => {
+      const { user } = await getUserSession();
+      setCurrentUser(user?.username);
+    })();
+  }, []);
 
   // const {
   //   isLoading,
@@ -50,7 +52,7 @@ const ProfilePage = () => {
   //       username: user.data.username,
   //       email: user.data.email,
   //       password: "",
-  //       birth_date: b?.toString() ?? "",
+  //       birthdate: b?.toString() ?? "",
   //     };
   //     authUser(user_info);
   //   }

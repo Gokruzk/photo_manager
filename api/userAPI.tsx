@@ -1,6 +1,6 @@
 "use server";
 import { jwtVerify } from "jose";
-import { User, UserLogin, User_ } from "@/types";
+import { GetUser, User, UserDetail, UserLogin } from "@/types";
 import axios from "axios";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -14,25 +14,24 @@ const userAPI = axios.create({
 });
 
 //get user
-
-export const getUser = async (username: string) => {
+export const getUser = async (username: string): Promise<GetUser> => {
   try {
     const res = await userAPI.get(`/user/${username}`);
-    if (res.data.status_code != 204) {
+    if (res.data.status_code != 404) {
       return { status: 200, data: res.data.result };
     } else {
       return { status: 400, error: "The user does not exist" };
     }
   } catch (error) {
     console.log(error);
+    return { status: 400, error: "The user does not exist" };
   }
-  return { status: 400, error: "The user does not exist" };
 };
 
 export const addUser = async (user: User) => {
   try {
     const res = await userAPI.post("/user", user);
-    if (res.data.status_code != 401) {
+    if (res.data.status_code != 400) {
       cookies().set({
         name: COOKIE_NAME,
         value: res.data.result["token"],
@@ -46,12 +45,12 @@ export const addUser = async (user: User) => {
       return { status: 401, error: "Error while registering user" };
     }
   } catch (error) {
-    console.error("Error during register");
+    console.error("Error while registering user", error);
+    return { status: 401, error: "Error while registering user" };
   }
-  return { status: 401, error: "Error while registering user" };
 };
 
-export const updateUser = async (username: string, user: User_) => {
+export const updateUser = async (username: string, user: UserDetail) => {
   try {
     const res = await userAPI.put(`/user/${username}`, user);
     if (res.data.status_code != 400) {
@@ -59,9 +58,9 @@ export const updateUser = async (username: string, user: User_) => {
         username: user.username,
         password: user.password,
       });
-      if (au_res.status == 200) {
+      if (au_res.status == 204 && au_res.token) {
         updateSessionLocal(au_res.token);
-        return { status: 200, token: au_res.token };
+        return { status: 200};
       }
       return { status: 200 };
     } else {
@@ -72,14 +71,14 @@ export const updateUser = async (username: string, user: User_) => {
     }
   } catch (error) {
     console.error("Error during updating", error);
+    return { status: 401, error: "Error while updating user" };
   }
-  return { status: 401, error: "Error while updating user" };
 };
 
 export const deleteUser = async (username: string) => {
   try {
     const res = await userAPI.delete(`/user/${username}`);
-    if (res.data.status_code != 400) {
+    if (res.data.status_code != 404) {
       cookies().set({
         name: COOKIE_NAME,
         value: "",
@@ -91,16 +90,18 @@ export const deleteUser = async (username: string) => {
     } else {
       return {
         status: 401,
-        error: `Error while updating user. Detail: ${res.data.detail}`,
+        error: `Error while deleting user. Detail: ${res.data.detail}`,
       };
     }
   } catch (error) {
-    console.error("Error during updating", error);
+    console.error("Error while deleting user", error);
+    return { status: 401, error: "Error while deleting user" };
   }
-  return { status: 401, error: "Error while updating user" };
 };
 
-export const auth = async (user: UserLogin) => {
+type AuthResponse = { status: number; token?: string; error?: string };
+
+export const auth = async (user: UserLogin): Promise<AuthResponse> => {
   try {
     const data = await userAPI.post("/auth/signin", user);
     if (data.data.status_code != 401) {
@@ -118,9 +119,9 @@ export const auth = async (user: UserLogin) => {
       return { status: 404, error: "Invalid username or password" };
     }
   } catch (error) {
-    console.error("Error during authentication");
+    console.error("Error during authentication:", error);
+    return { status: 500, error: "Server error during authentication" };
   }
-  return { status: 404, error: "Invalid username or password" };
 };
 
 export const logout = () => {
@@ -135,8 +136,8 @@ export const logout = () => {
     return { status: 200 };
   } catch (error) {
     console.error("Error during authentication", error);
+    return { status: 404, error: "Invalid username or password" };
   }
-  return { status: 404, error: "Invalid username or password" };
 };
 
 export async function decrypt(input: string): Promise<any> {

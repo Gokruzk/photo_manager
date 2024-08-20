@@ -4,21 +4,23 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const EditLayout = ({ children }: { children: React.ReactNode }) => {
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    (async () => {
+    const checkUserSession = async () => {
       const { user, error } = await getUserSession();
-      if (error) {
+      if (error || !user) {
         router.push("/login");
-      } else if (user) {
-        setIsSuccess(true);
+      } else {
+        setIsLoading(false);
       }
-    })();
-  }, []);
+    };
 
-  if (!isSuccess) {
+    checkUserSession();
+  }, [router]);
+
+  if (isLoading) {
     return (
       <main>
         <p>Loading...</p>

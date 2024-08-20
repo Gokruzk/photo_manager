@@ -1,17 +1,10 @@
 "use client";
-import { deleteUser, getUser, logout } from "@/api/userAPI";
+import { deleteUser, logout } from "@/api/userAPI";
 import LinkButton from "@/components/LinkButton";
-import userStore from "@/store/auth/userStore";
-import { UserDates, User_, UserName } from "@/types";
 import { getUserSession } from "@/utils/userSession";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
-import Link from "next/link";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
@@ -24,61 +17,49 @@ export default function Profile() {
 }
 
 const ProfilePage = () => {
-  const [current_user, setCurrentuser] = useState<string>();
-  const [isLoading, setIsloading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // const {
-  //   isLoading,
-  //   data: user,
-  //   isError,
-  //   error,
-  // } = useQuery({
-  //   queryKey: ["user", current_user],
-  //   queryFn: () => {
-  //     if (current_user) {
-  //       return getUser(current_user);
-  //     } else {
-  //       return Promise.resolve(null); // Devuelve un valor por defecto si current_user es undefined
-  //     }
-  //   },
-  //   retry: 3,
-  //   retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
-  //   refetchInterval: 3000, // Obtención en tiempo real cada 2 segundos
-  // });
+  useEffect(() => {
+    const fetchUserSession = async () => {
+      const { user } = await getUserSession();
+      setCurrentUser(user?.username);
+      setIsLoading(false);
+    };
 
-  const user_session = useCallback(async () => {
-    const { user } = await getUserSession();
-    setCurrentuser(user?.username);
+    fetchUserSession();
   }, []);
 
-  useEffect(() => {
-    user_session();
-  }, [user_session]);
-
   const handleLogout = async () => {
-    const result = await logout();
-    if (result.status === 200) {
-      router.push("/");
-    } else {
-      console.error(result.error);
-    }
-  };
-
-  const deleteAccount = async () => {
-    const res = confirm("Are you sure?");
-    if (res && current_user) {
-      const result = await deleteUser(current_user);
+    try {
+      const result = await logout();
       if (result.status === 200) {
         router.push("/");
       } else {
         console.error(result.error);
       }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (confirm("Are you sure?") && currentUser) {
+      try {
+        const result = await deleteUser(currentUser);
+        if (result.status === 200) {
+          router.push("/");
+        } else {
+          console.error(result.error);
+        }
+      } catch (error) {
+        console.error("Account deletion failed:", error);
+      }
     }
   };
 
   if (isLoading) {
-    setIsloading(false)
     return <div>Loading...</div>;
   }
 
@@ -88,15 +69,14 @@ const ProfilePage = () => {
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-              <Link
-                href={"/"}
-                className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-              >
-                {"<-"} Home
-              </Link>
+              <LinkButton
+              title="<- Home"
+                href="/"
+                style="font-medium text-primary-600 hover:underline dark:text-primary-500"
+              />
             </p>
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-              Welcome: {current_user}
+              Welcome: {currentUser}
             </h1>
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-3 rounded"

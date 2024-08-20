@@ -1,22 +1,21 @@
-import Link from "next/link";
+import LinkButton from "@/components/LinkButton";
 
 export default function AboutMe() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="relative w-full group max-w-md min-w-0 mx-auto mt-6 mb-6 break-words bg-white border shadow-2xl dark:bg-gray-800 dark:border-gray-700 md:max-w-sm rounded-xl">
+      <div className="relative w-full group max-w-lg min-w-0 mx-auto mt-6 mb-6 break-words bg-white border shadow-2xl dark:bg-gray-800 dark:border-gray-700 rounded-xl">
         <div className="pb-6">
           <div className="flex relative pl-5 pt-5">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-              <Link
-                href={"/"}
-                className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-              >
-                {"<-"} Home
-              </Link>
+              <LinkButton
+                title="<- Home"
+                href="/"
+                style="font-medium text-primary-600 hover:underline dark:text-primary-500"
+              />
             </p>
           </div>
           <div className="mt-5 text-center">
-            <h3 className="mb-1 text-2xl font-bold leading-normal text-gray-700 dark:text-gray-300">
+            <h3 className="mb-1 text-3xl font-bold leading-normal text-gray-700 dark:text-gray-300">
               Gokruzk
             </h3>
             <div className="flex flex-row justify-center w-full mx-auto space-x-2 text-center">
@@ -35,7 +34,7 @@ export default function AboutMe() {
                     target="_blank"
                   >
                     <svg
-                      className="w-6 h-6 overflow-visible fill-current"
+                      className="w-7 h-7 overflow-visible fill-current"
                       aria-hidden="true"
                       viewBox="0 0 140 140"
                     >
@@ -50,7 +49,7 @@ export default function AboutMe() {
                     target="_blank"
                   >
                     <svg
-                      className="w-6 h-6 overflow-visible fill-current"
+                      className="w-7 h-7 overflow-visible fill-current"
                       aria-hidden="true"
                       viewBox="0 0 140 140"
                     >
@@ -67,20 +66,23 @@ export default function AboutMe() {
                 <p className="mb-4 font-light leading-relaxed text-gray-600 dark:text-gray-400">
                   Software Developer with over one year of experience, skilled
                   in backend and frontend technologies. Always looking to
-                  implement engineering in all projects. Highly motivated to be
-                  part of new challenges, enjoying a collaborative culture
-                  sharing experiences and knowledge with partners.
+                  implement engineering in all projects. Highly motivated
+                  individual, capable of taking on new challenges, learning
+                  quickly, and adapting to new technologies and environments.
+                  Proficient in collaborative culture and working effectively
+                  with diverse teams to achieve project goals while sharing my
+                  experience and knowledge with partners.
                 </p>
               </div>
             </div>
           </div>
-          <div className="relative h-6 overflow-hidden translate-y-6 rounded-b-xl">
+          <div className="relative h-8 overflow-hidden translate-y-6 rounded-b-xl">
             <div className="absolute flex -space-x-12 rounded-b-2xl">
-              <div className="w-36 h-8 transition-colors duration-200 delay-75 transform skew-x-[35deg] bg-amber-400/90 group-hover:bg-amber-600/90 z-10"></div>
-              <div className="w-28 h-8 transition-colors duration-200 delay-100 transform skew-x-[35deg] bg-amber-300/90 group-hover:bg-amber-500/90 z-20"></div>
-              <div className="w-28 h-8 transition-colors duration-200 delay-150 transform skew-x-[35deg] bg-amber-200/90 group-hover:bg-amber-400/90 z-30"></div>
-              <div className="w-28 h-8 transition-colors duration-200 delay-200 transform skew-x-[35deg] bg-amber-100/90 group-hover:bg-amber-300/90 z-40"></div>
-              <div className="w-28 h-8 transition-colors duration-200 delay-300 transform skew-x-[35deg] bg-amber-50/90 group-hover:bg-amber-200/90 z-50"></div>
+              <div className="w-40 h-10 transition-colors duration-200 delay-75 transform skew-x-[35deg] bg-amber-400/90 group-hover:bg-amber-600/90 z-10"></div>
+              <div className="w-32 h-10 transition-colors duration-200 delay-100 transform skew-x-[35deg] bg-amber-300/90 group-hover:bg-amber-500/90 z-20"></div>
+              <div className="w-32 h-10 transition-colors duration-200 delay-150 transform skew-x-[35deg] bg-amber-200/90 group-hover:bg-amber-400/90 z-30"></div>
+              <div className="w-32 h-10 transition-colors duration-200 delay-200 transform skew-x-[35deg] bg-amber-100/90 group-hover:bg-amber-300/90 z-40"></div>
+              <div className="w-32 h-10 transition-colors duration-200 delay-300 transform skew-x-[35deg] bg-amber-50/90 group-hover:bg-amber-200/90 z-50"></div>
             </div>
           </div>
         </div>

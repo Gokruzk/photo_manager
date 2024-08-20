@@ -1,18 +1,18 @@
 "use client";
 import { getCountries } from "@/api/countryAPI";
-import Link from "next/link";
 import {
   QueryClient,
   QueryClientProvider,
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { Country, User_Retrieve, User_ } from "@/types";
+import { Country, UserDetail, UserRetrieve } from "@/types";
 import { getUser, updateUser } from "@/api/userAPI";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { getUserSession } from "@/utils/userSession";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import LinkButton from "@/components/LinkButton";
 
 const queryClient = new QueryClient();
 
@@ -25,38 +25,41 @@ export default function Edit() {
 }
 
 function ProfileEdit() {
-  const [user_retrieve, setUserRetrieve] = useState<User_Retrieve>();
-  const [current_user, setCurrentuser] = useState<string>();
+  const [userRetrieve, setUserRetrieve] = useState<UserRetrieve>();
+  const [currentUser, setCurrentUser] = useState<string>();
+  const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, reset } = useForm();
+
+  function togglePasswordVisibility() {
+    setShowPassword(!showPassword);
+  }
+
   const router = useRouter();
 
-  const user_session = useCallback(async () => {
-    const { user } = await getUserSession();
-    setCurrentuser(user?.username);
-  }, [setCurrentuser]);
-
-  useEffect(() => {
-    user_session();
-  }, [user_session]);
+  const {
+    data: user,
+    isLoading: userLoading,
+    isError: userError,
+  } = useQuery({
+    queryKey: ["user", currentUser],
+    queryFn: () => (currentUser ? getUser(currentUser) : Promise.resolve(null)),
+  });
 
   const {
-    isLoading,
-    data: user,
-    isError,
-    error,
+    data: countries,
+    isLoading: countriesLoading,
+    isError: countriesError,
   } = useQuery({
-    queryKey: ["user", current_user],
-    queryFn: () => {
-      if (current_user) {
-        return getUser(current_user);
-      } else {
-        return Promise.resolve(null);
-      }
-    },
-    retry: 2,
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
-    refetchInterval: 2000, // Obtención en tiempo real cada 2 segundos
+    queryKey: ["countries"],
+    queryFn: getCountries,
   });
+
+  useEffect(() => {
+    (async () => {
+      const { user } = await getUserSession();
+      setCurrentUser(user?.username);
+    })();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -65,46 +68,26 @@ function ProfileEdit() {
   }, [user]);
 
   useEffect(() => {
-    if (user_retrieve) {
-      // Actualiza los valores del formulario cuando los datos del usuario estén disponibles
+    if (userRetrieve) {
       reset({
-        email: user_retrieve.email || "",
-        username: user_retrieve.username || "",
-        birth: parsedBirthdate || "",
+        email: userRetrieve.email || "",
+        username: userRetrieve.username || "",
+        birth:
+          parseDate(
+            userRetrieve.User_Dates.find(
+              (date) => date.cod_description === 3
+            )?.cod_date.toString()
+          ) || "",
         countries:
-          `${user_retrieve.ubication.cod_ubi}-${user_retrieve.ubication.country}` ||
+          `${userRetrieve.ubication.cod_ubi}-${userRetrieve.ubication.country}` ||
           "",
       });
     }
-  }, [user_retrieve, reset]);
+  }, [userRetrieve, reset]);
 
-  const updateData = async (formdata: any) => {
-    const username = formdata.username;
-    const email = formdata.email;
-    const password = formdata.password;
-    const ubi = formdata.countries;
-    const [codUbi] = ubi.split("-");
-    const birth = formdata.birth;
-
-    if (user_retrieve) {
-      const user = {
-        cod_user: user_retrieve?.cod_user,
-        cod_ubi: codUbi,
-        cod_state: 1,
-        username: username,
-        email: email,
-        password: password,
-        birth_date: birth,
-      };
-      addUserMutation.mutate(user);
-    }
-  };
-
-  const addUserMutation = useMutation({
-    mutationFn: (user: User_) => {
-      const username = user_retrieve?.username ?? "None";
-      return updateUser(username, user);
-    },
+  const { mutate: updateUserMutation } = useMutation({
+    mutationFn: (user: UserDetail) =>
+      updateUser(userRetrieve?.username || "None", user),
     onSuccess: (data) => {
       if (data.status === 200) {
         alert("User data updated");
@@ -113,66 +96,34 @@ function ProfileEdit() {
         alert(data.error);
       }
     },
-    onError: (error) => {
-      console.log(error);
+    onError: () => {
       alert("An error occurred during updating");
     },
   });
 
-  const retrieveCountries = () => {
-    const {
-      isLoading: loadingCountries,
-      data: countries,
-      isError: errorC,
-      error: errorM,
-    } = useQuery({
-      queryKey: ["countries"],
-      queryFn: getCountries,
-      retry: 3,
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
-      refetchInterval: 10000, // Get data every 2 seconds
-    });
-    return { loadingCountries, countries, errorC, errorM };
+  const handleUpdateData = (formdata: any) => {
+    const [codUbi] = formdata.countries.split("-");
+    const user: UserDetail = {
+      cod_user: userRetrieve?.cod_user || 0,
+      cod_ubi: codUbi,
+      cod_state: 1,
+      username: formdata.username,
+      email: formdata.email,
+      password: formdata.password,
+      birthdate: formdata.birth,
+    };
+    updateUserMutation(user);
   };
 
-  const { loadingCountries, countries, errorC, errorM } = retrieveCountries();
-
-  function togglePasswordVisibility() {
-    const passwordInput = document.getElementById(
-      "password"
-    ) as HTMLInputElement | null;
-
-    if (passwordInput) {
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-      } else {
-        passwordInput.type = "password";
-      }
-    }
-  }
-
-  function parseCustomDate(fecha: string): string {
+  function parseDate(fecha: string | undefined): string {
     if (fecha) {
-      const year = fecha.slice(0, 4);
-      const month = fecha.slice(4, 6);
-      const day = fecha.slice(6, 8);
-      return `${year}-${month}-${day}`;
+      return `${fecha.slice(0, 4)}-${fecha.slice(4, 6)}-${fecha.slice(6, 8)}`;
     }
     return "";
   }
 
-  const birthdate = user_retrieve?.User_Dates.find(
-    (date) => date.cod_description === 3
-  )?.cod_date;
-
-  const parsedBirthdate = birthdate
-    ? parseCustomDate(birthdate.toString())
-    : null;
-
-  if (isLoading) return <div>Loading...</div>;
-  else if (loadingCountries) return <div>Loading...</div>;
-  else if (errorC) return <div>Error {errorM && errorM.message}</div>;
-  else if (isError) return <div>Error {error.message}</div>;
+  if (userLoading || countriesLoading) return <div>Loading...</div>;
+  if (userError || countriesError) return <div>Error occurred</div>;
 
   return (
     <main className="bg-gray-50 dark:bg-gray-900">
@@ -180,19 +131,18 @@ function ProfileEdit() {
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-              <Link
-                href={"/profile"}
-                className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-              >
-                {"<-"} Back
-              </Link>
+              <LinkButton
+                title="<- Back"
+                href="/profile"
+                style="font-medium text-primary-600 hover:underline dark:text-primary-500"
+              />
             </p>
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Update your info
             </h1>
             <form
               className="space-y-4 md:space-y-6"
-              onSubmit={handleSubmit(updateData)}
+              onSubmit={handleSubmit(handleUpdateData)}
             >
               <div>
                 <label
@@ -206,10 +156,11 @@ function ProfileEdit() {
                   id="email"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="email@email.com"
-                  defaultValue={user_retrieve?.email}
+                  defaultValue={userRetrieve?.email}
                   required
                   {...register("email")}
                 />
+
                 <label
                   htmlFor="username"
                   className="block mt-4 mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -221,7 +172,7 @@ function ProfileEdit() {
                   id="username"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="username"
-                  defaultValue={user_retrieve?.username}
+                  defaultValue={userRetrieve?.username}
                   required
                   {...register("username")}
                 />
@@ -250,7 +201,11 @@ function ProfileEdit() {
                   type="date"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Select date"
-                  defaultValue={parsedBirthdate?.toString()}
+                  defaultValue={parseDate(
+                    userRetrieve?.User_Dates.find(
+                      (date) => date.cod_description === 3
+                    )?.cod_date.toString()
+                  )}
                   {...register("birth")}
                 />
               </div>
@@ -264,10 +219,10 @@ function ProfileEdit() {
               <select
                 id="countries"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                defaultValue={`${userRetrieve?.ubication.cod_ubi}-${userRetrieve?.ubication.country}`}
                 {...register("countries")}
-                defaultValue={`${user_retrieve?.ubication.cod_ubi}-${user_retrieve?.ubication.country}`}
               >
-                {countries?.data.map((country: Country) => (
+                {countries?.data?.map((country: Country) => (
                   <option
                     key={country.cod_ubi}
                     value={`${country.cod_ubi}-${country.country}`}
@@ -276,21 +231,19 @@ function ProfileEdit() {
                   </option>
                 ))}
               </select>
-
               <div>
                 <label
                   htmlFor="password"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Your new password
+                  Your password
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Enter password"
-                    defaultValue={""}
                     required
                     {...register("password")}
                   />
@@ -341,9 +294,9 @@ function ProfileEdit() {
               </div>
               <button
                 type="submit"
-                className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                Update
+                Save changes
               </button>
             </form>
           </div>
