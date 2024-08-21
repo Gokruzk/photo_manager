@@ -1,10 +1,10 @@
 "use server";
-import { jwtVerify } from "jose";
 import { GetUser, User, UserDetail, UserLogin } from "@/types";
-import axios from "axios";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME } from "@/constants";
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
+import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const key = new TextEncoder().encode(process.env.NEXT_PUBLIC_SECRET_KEY);
