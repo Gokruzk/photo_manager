@@ -1,7 +1,7 @@
-import { decrypt } from "@/api/userAPI";
-import { COOKIE_NAME } from "@/constants";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { COOKIE_NAME } from "@/constants";
+import { decrypt } from "@/api/userAPI";
+import { cookies } from "next/headers";
 
 export async function GET() {
   const cookieStore = cookies();
