@@ -36,6 +36,11 @@ export interface Country {
   country: string;
 }
 
+// Interface for images
+export interface Images{
+  image_file: FileList
+}
+
 // Datos para el login de usuario
 export interface UserLogin {
   username: string;
