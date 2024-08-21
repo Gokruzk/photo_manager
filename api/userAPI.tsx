@@ -1,5 +1,5 @@
 "use server";
-import { GetUser, User, UserDetail, UserLogin } from "@/types";
+import { ApiPromise, User, UserDetail, UserLogin } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME } from "@/constants";
 import { cookies } from "next/headers";
@@ -14,7 +14,7 @@ const userAPI = axios.create({
 });
 
 //get user
-export const getUser = async (username: string): Promise<GetUser> => {
+export const getUser = async (username: string): Promise<ApiPromise> => {
   try {
     const res = await userAPI.get(`/user/${username}`);
     if (res.data.status_code != 404) {
@@ -28,7 +28,7 @@ export const getUser = async (username: string): Promise<GetUser> => {
   }
 };
 
-export const addUser = async (user: User) => {
+export const addUser = async (user: User): Promise<ApiPromise> => {
   try {
     const res = await userAPI.post("/user", user);
     if (res.data.status_code != 400) {
@@ -50,7 +50,10 @@ export const addUser = async (user: User) => {
   }
 };
 
-export const updateUser = async (username: string, user: UserDetail) => {
+export const updateUser = async (
+  username: string,
+  user: UserDetail
+): Promise<ApiPromise> => {
   try {
     const res = await userAPI.put(`/user/${username}`, user);
     if (res.data.status_code != 400) {
@@ -60,7 +63,7 @@ export const updateUser = async (username: string, user: UserDetail) => {
       });
       if (au_res.status == 204 && au_res.token) {
         updateSessionLocal(au_res.token);
-        return { status: 200};
+        return { status: 200 };
       }
       return { status: 200 };
     } else {
@@ -75,7 +78,7 @@ export const updateUser = async (username: string, user: UserDetail) => {
   }
 };
 
-export const deleteUser = async (username: string) => {
+export const deleteUser = async (username: string): Promise<ApiPromise> => {
   try {
     const res = await userAPI.delete(`/user/${username}`);
     if (res.data.status_code != 404) {

@@ -37,8 +37,13 @@ export interface Country {
 }
 
 // Interface for images
-export interface Images{
-  image_file: FileList
+export interface Images {
+  image_file: FileList;
+}
+
+export interface ImagesD {
+  cod_user: number;
+  cod_image: number;
 }
 
 // Datos para el login de usuario
@@ -57,13 +62,6 @@ export interface UserResponse {
 export interface AuthState {
   username: string | null;
   authUser: (user: { username: string }) => void;
-  removeSession: () => void;
-}
-
-// Estado del usuario con detalles completos
-export interface UserState {
-  user: UserDetail | null;
-  authUser: (user: UserDetail) => void;
   removeSession: () => void;
 }
 
@@ -91,8 +89,37 @@ export interface UserRetrieve {
 }
 
 // Respuesta para obtener un usuario
-export interface GetUser {
+export interface ApiPromiseUser {
   status: number;
   data?: UserRetrieve;
+  error?: string;
+}
+
+interface Dates {
+  cod_date: number;
+  year: number;
+  month: number;
+  day: Date;
+}
+
+export interface UserImages {
+  cod_image: number;
+  cod_ubi: number;
+  image: string;
+  uploadedat: number;
+  ubication: Country;
+  uploaded: Dates;
+}
+
+export interface ImagesRetrieve{
+  cod_image: number
+  cod_user: number
+  description: string
+  images: UserImages
+}
+
+export interface ApiPromiseImages {
+  status: number;
+  data?: ImagesRetrieve[];
   error?: string;
 }
