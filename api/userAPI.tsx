@@ -1,5 +1,11 @@
 "use server";
-import { ApiPromise, User, UserDetail, UserLogin } from "@/types";
+import {
+  ApiPromiseUser,
+  AuthResponse,
+  User,
+  UserDetail,
+  UserLogin,
+} from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME } from "@/constants";
 import { cookies } from "next/headers";
@@ -14,7 +20,7 @@ const userAPI = axios.create({
 });
 
 //get user
-export const getUser = async (username: string): Promise<ApiPromise> => {
+export const getUser = async (username: string): Promise<ApiPromiseUser> => {
   try {
     const res = await userAPI.get(`/user/${username}`);
     if (res.data.status_code != 404) {
@@ -28,7 +34,8 @@ export const getUser = async (username: string): Promise<ApiPromise> => {
   }
 };
 
-export const addUser = async (user: User): Promise<ApiPromise> => {
+//add user
+export const addUser = async (user: User): Promise<ApiPromiseUser> => {
   try {
     const res = await userAPI.post("/user", user);
     if (res.data.status_code != 400) {
@@ -50,18 +57,21 @@ export const addUser = async (user: User): Promise<ApiPromise> => {
   }
 };
 
+// update user
 export const updateUser = async (
   username: string,
   user: UserDetail
-): Promise<ApiPromise> => {
+): Promise<ApiPromiseUser> => {
   try {
     const res = await userAPI.put(`/user/${username}`, user);
     if (res.data.status_code != 400) {
+      // auth the user with the new data
       const au_res = await auth({
         username: user.username,
         password: user.password,
       });
       if (au_res.status == 204 && au_res.token) {
+        // update session with the new token
         updateSessionLocal(au_res.token);
         return { status: 200 };
       }
@@ -78,9 +88,11 @@ export const updateUser = async (
   }
 };
 
-export const deleteUser = async (username: string): Promise<ApiPromise> => {
+// delete user
+export const deleteUser = async (username: string): Promise<ApiPromiseUser> => {
   try {
     const res = await userAPI.delete(`/user/${username}`);
+    // remove cookie
     if (res.data.status_code != 404) {
       cookies().set({
         name: COOKIE_NAME,
@@ -102,13 +114,14 @@ export const deleteUser = async (username: string): Promise<ApiPromise> => {
   }
 };
 
-type AuthResponse = { status: number; token?: string; error?: string };
-
+// user auth
 export const auth = async (user: UserLogin): Promise<AuthResponse> => {
   try {
+    // auth user
     const data = await userAPI.post("/auth/signin", user);
     if (data.data.status_code != 401) {
       const token = data.data.result.token;
+      // create the cookie
       cookies().set({
         name: COOKIE_NAME,
         value: token,
@@ -127,8 +140,10 @@ export const auth = async (user: UserLogin): Promise<AuthResponse> => {
   }
 };
 
+// logout 
 export const logout = () => {
   try {
+    // remove cookie
     cookies().set({
       name: COOKIE_NAME,
       value: "",
@@ -143,6 +158,7 @@ export const logout = () => {
   }
 };
 
+// decrypt function for jwt
 export async function decrypt(input: string): Promise<any> {
   const { payload } = await jwtVerify(input, key, {
     algorithms: ["HS256"],
@@ -150,11 +166,15 @@ export async function decrypt(input: string): Promise<any> {
   return payload;
 }
 
+// update session
 export async function updateSession(request: NextRequest) {
+  // get current cookie
   const session = request.cookies.get(COOKIE_NAME)?.value;
+
+  // if the cookie does not exist
   if (!session) return;
 
-  // Refresh the session so it doesn't expire
+  // refresh the session so it doesn't expire
   const parsed = await decrypt(session);
   parsed.exp = new Date(Date.now() + 10 * 1000);
   const res = NextResponse.next();

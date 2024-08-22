@@ -4,6 +4,7 @@ import { decrypt } from "@/api/userAPI";
 import { cookies } from "next/headers";
 
 export async function GET() {
+  // get user cookie
   const cookieStore = cookies();
   const token = cookieStore.get(COOKIE_NAME);
   if (!token) {
@@ -16,8 +17,10 @@ export async function GET() {
       }
     );
   }
+  // decrypt
   const { value } = token;
   const data = await decrypt(value);
+  // return username
   try {
     const response = {
       username: data["username"],

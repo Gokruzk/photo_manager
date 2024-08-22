@@ -1,15 +1,17 @@
 "use client";
 import { getCountries } from "@/api/countryAPI";
-import Link from "next/link";
 import {
   QueryClient,
   QueryClientProvider,
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
+import LinkButton from "@/components/LinkButton";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { Country, User } from "@/types";
 import { addUser } from "@/api/userAPI";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const queryClient = new QueryClient();
 
@@ -22,27 +24,11 @@ export default function RegisterF() {
 }
 
 const RegisterForm = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const { register, handleSubmit } = useForm();
   const router = useRouter();
-  const registerUser = async (formdata: FormData) => {
-    const username = formdata.get("username") as string;
-    const email = formdata.get("email") as string;
-    const password = formdata.get("password") as string;
-    const birth = formdata.get("birth") as string;
-    const ubi = formdata.get("countries") as string;
-    const [codUbi] = ubi.split("-");
-    const user: User = {
-      cod_ubi: codUbi,
-      cod_state: 1,
-      username: username,
-      email: email,
-      password: password,
-      birthdate: birth,
-    };
 
-    addUserMutation.mutate({
-      ...user,
-    });
-  };
+  // auth user mutation
   const addUserMutation = useMutation({
     mutationFn: addUser,
     onSuccess: (data) => {
@@ -59,6 +45,24 @@ const RegisterForm = () => {
     },
   });
 
+  // get data from form and mutate
+  const registerUser = (formdata: any) => {
+    const [codUbi] = formdata.countries.split("-");
+    const user: User = {
+      cod_ubi: codUbi,
+      cod_state: 1,
+      username: formdata.username,
+      email: formdata.email,
+      password: formdata.password,
+      birthdate: formdata.birth,
+    };
+
+    addUserMutation.mutate({
+      ...user,
+    });
+  };
+
+  // get countries
   const {
     isLoading,
     data: countries,
@@ -72,18 +76,9 @@ const RegisterForm = () => {
     refetchInterval: 2000, // Obtención en tiempo real cada 2 segundos
   });
 
+  // password visibility
   function togglePasswordVisibility() {
-    const passwordInput = document.getElementById(
-      "password"
-    ) as HTMLInputElement | null;
-
-    if (passwordInput) {
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-      } else {
-        passwordInput.type = "password";
-      }
-    }
+    setShowPassword(!showPassword);
   }
 
   if (isLoading) return <div>Loading...</div>;
@@ -95,17 +90,16 @@ const RegisterForm = () => {
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-              <Link
-                href={"/"}
-                className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-              >
-                {"<-"} Home
-              </Link>
+              <LinkButton
+                title="<- Home"
+                href="/"
+                style="font-medium text-primary-600 hover:underline dark:text-primary-500"
+              />
             </p>
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Register an account
             </h1>
-            <form className="space-y-4 md:space-y-6" action={registerUser}>
+            <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(registerUser)}>
               <div>
                 <label
                   htmlFor="email"
@@ -115,11 +109,11 @@ const RegisterForm = () => {
                 </label>
                 <input
                   type="email"
-                  name="email"
                   id="email"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="email@email.com"
                   required
+                  {...register("email")}
                 />
                 <label
                   htmlFor="username"
@@ -129,11 +123,11 @@ const RegisterForm = () => {
                 </label>
                 <input
                   type="username"
-                  name="username"
                   id="username"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="username"
                   required
+                  {...register("username")}
                 />
               </div>
 
@@ -157,10 +151,10 @@ const RegisterForm = () => {
                 </div>
                 <input
                   id="birth"
-                  name="birth"
                   type="date"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Select date"
+                  {...register("birth")}
                 />
               </div>
 
@@ -172,8 +166,8 @@ const RegisterForm = () => {
               </label>
               <select
                 id="countries"
-                name="countries"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                {...register("countries")}
               >
                 <option defaultValue={"Choose a country"}>
                   Choose a country
@@ -198,12 +192,12 @@ const RegisterForm = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
-                    name="password"
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Enter password"
                     required
+                    {...register("password")}
                   />
                   <button
                     type="button"

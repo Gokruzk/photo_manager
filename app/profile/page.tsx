@@ -21,6 +21,7 @@ const ProfilePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // get current user
   useEffect(() => {
     const fetchUserSession = async () => {
       const { user } = await getUserSession();
@@ -31,6 +32,7 @@ const ProfilePage = () => {
     fetchUserSession();
   }, []);
 
+  // logout function
   const handleLogout = async () => {
     try {
       const result = await logout();
@@ -44,6 +46,7 @@ const ProfilePage = () => {
     }
   };
 
+  // delete account function
   const deleteAccount = async () => {
     if (confirm("Are you sure?") && currentUser) {
       try {

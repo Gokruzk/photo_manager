@@ -29,13 +29,30 @@ function ProfileEdit() {
   const [currentUser, setCurrentUser] = useState<string>();
   const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, reset } = useForm();
+  const router = useRouter();
 
+  // password visibility
   function togglePasswordVisibility() {
     setShowPassword(!showPassword);
   }
 
-  const router = useRouter();
+  // parse date to YYYYMMDD format
+  function parseDate(fecha: string | undefined): string {
+    if (fecha) {
+      return `${fecha.slice(0, 4)}-${fecha.slice(4, 6)}-${fecha.slice(6, 8)}`;
+    }
+    return "";
+  }
 
+  // get current user
+  useEffect(() => {
+    (async () => {
+      const { user } = await getUserSession();
+      setCurrentUser(user?.username);
+    })();
+  }, []);
+
+  // get current user info
   const {
     data: user,
     isLoading: userLoading,
@@ -45,6 +62,7 @@ function ProfileEdit() {
     queryFn: () => (currentUser ? getUser(currentUser) : Promise.resolve(null)),
   });
 
+  // get countries
   const {
     data: countries,
     isLoading: countriesLoading,
@@ -55,18 +73,12 @@ function ProfileEdit() {
   });
 
   useEffect(() => {
-    (async () => {
-      const { user } = await getUserSession();
-      setCurrentUser(user?.username);
-    })();
-  }, []);
-
-  useEffect(() => {
     if (user) {
       setUserRetrieve(user.data);
     }
   }, [user]);
 
+  // reset forms when the data is retrieve again
   useEffect(() => {
     if (userRetrieve) {
       reset({
@@ -101,6 +113,7 @@ function ProfileEdit() {
     },
   });
 
+  // get data from form
   const handleUpdateData = (formdata: any) => {
     const [codUbi] = formdata.countries.split("-");
     const user: UserDetail = {
@@ -114,13 +127,6 @@ function ProfileEdit() {
     };
     updateUserMutation(user);
   };
-
-  function parseDate(fecha: string | undefined): string {
-    if (fecha) {
-      return `${fecha.slice(0, 4)}-${fecha.slice(4, 6)}-${fecha.slice(6, 8)}`;
-    }
-    return "";
-  }
 
   if (userLoading || countriesLoading) return <div>Loading...</div>;
   if (userError || countriesError) return <div>Error occurred</div>;

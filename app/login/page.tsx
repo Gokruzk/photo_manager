@@ -1,12 +1,15 @@
 "use client";
 import { auth } from "@/api/userAPI";
 import LinkButton from "@/components/LinkButton";
+import { UserLogin } from "@/types";
 import {
   QueryClient,
   QueryClientProvider,
   useMutation,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 const queryClient = new QueryClient();
 
@@ -19,9 +22,12 @@ export default function LoginF() {
 }
 
 function LoginForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const {register, handleSubmit} = useForm()
   const router = useRouter();
 
-  const addUserMutation = useMutation({
+  // auth user mutation
+  const authMutation = useMutation({
     mutationFn: auth,
     onSuccess: (data) => {
       if (data.status === 200) {
@@ -37,24 +43,18 @@ function LoginForm() {
     },
   });
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+  // get data from form and mutate
+  const handleLogin = (formdata: any) => {
     const user = {
-      username: formData.get("username") as string,
-      password: formData.get("password") as string,
+      username: formdata.username,
+      password: formdata.password
     };
-    addUserMutation.mutate(user);
+    authMutation.mutate(user);
   };
 
+  // password visibility
   function togglePasswordVisibility() {
-    const passwordInput = document.getElementById(
-      "password"
-    ) as HTMLInputElement | null;
-    if (passwordInput) {
-      passwordInput.type =
-        passwordInput.type === "password" ? "text" : "password";
-    }
+    setShowPassword(!showPassword);
   }
 
   return (
@@ -72,7 +72,7 @@ function LoginForm() {
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Sign in to your account
             </h1>
-            <form className="space-y-4 md:space-y-6" onSubmit={handleLogin}>
+            <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(handleLogin)}>
               <div>
                 <label
                   htmlFor="username"
@@ -82,11 +82,11 @@ function LoginForm() {
                 </label>
                 <input
                   type="text"
-                  name="username"
                   id="username"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="username"
                   required
+                  {...register("username")}
                 />
               </div>
               <div>
@@ -98,12 +98,12 @@ function LoginForm() {
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
-                    name="password"
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Enter password"
                     required
+                    {...register("password")}
                   />
                   <button
                     type="button"

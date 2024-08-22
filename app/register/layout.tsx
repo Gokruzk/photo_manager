@@ -7,17 +7,18 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // check current user session
   useEffect(() => {
     const checkUserSession = async () => {
-      const { error } = await getUserSession();
-      if (error) {
+      const { user, error } = await getUserSession();
+      // if the user is not logged return to login
+      if (error || !user) {
         router.push("/register");
       } else {
         router.push("/profile");
       }
       setLoading(false);
     };
-
     checkUserSession();
   }, [router]);
 

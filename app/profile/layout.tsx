@@ -1,40 +1,26 @@
 "use client";
-import { getUser } from "@/api/userAPI";
 import { getUserSession } from "@/utils/userSession";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
     const fetchUserSession = async () => {
       const { user, error } = await getUserSession();
-      if (error) {
-        setIsLoading(false);
+      if (error || !user) {
         router.push("/login");
-        return;
-      }
-
-      if (user) {
-        try {
-          const us = await getUser(user.username);
-          if (us.status === 200) {
-            setIsLoading(false);
-          } else {
-            router.push("/login");
-          }
-        } catch {
-          router.push("/login");
-        }
+      }else{
+        setIsSuccess(true)
       }
     };
 
     fetchUserSession();
   }, [router]);
 
-  if (isLoading) {
+  if (!isSuccess) {
     return (
       <main>
         <p>Loading...</p>

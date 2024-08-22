@@ -14,6 +14,7 @@ const ImageUploadForm = () => {
     formState: { errors },
   } = useForm<Images>();
 
+  // get current user
   useEffect(() => {
     (async () => {
       const { user } = await getUserSession();
@@ -21,12 +22,14 @@ const ImageUploadForm = () => {
     })();
   }, []);
 
+  // check if file was selected
   const handleUpload = async (image: Images) => {
     if (image.image_file.length === 0) {
       alert("Please select a file to upload.");
       return;
     }
 
+    // upload
     if (currentUser) {
       const formData = new FormData();
       formData.append("username", currentUser);

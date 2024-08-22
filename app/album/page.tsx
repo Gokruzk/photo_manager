@@ -21,9 +21,11 @@ export default function Profile() {
 }
 
 const ProfilePage = () => {
-  const [currentUser, setCurrentUser] = useState<string>();
   const [userImages, setUserImages] = useState<ImagesRetrieve[]>();
+  const [currentUser, setCurrentUser] = useState<string>();
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  // get current user
   useEffect(() => {
     (async () => {
       const { user } = await getUserSession();
@@ -31,6 +33,7 @@ const ProfilePage = () => {
     })();
   }, []);
 
+  // get current user's images
   const {
     isLoading,
     data: images,
@@ -54,12 +57,11 @@ const ProfilePage = () => {
   if (isLoading) return <div>Loading...</div>;
   else if (isError) return <div>Error {error.message}</div>;
 
-  if(images?.data?.length === 0){
+  // if no images
+  if (images?.data?.length === 0) {
     return (
       <section className="bg-gray-50 dark:bg-gray-900 p-4">
-        <div>
-          No images
-        </div>
+        <div>No images</div>
         <div className="mt-4 justify-between">
           <LinkButton
             href="/profile"
@@ -76,6 +78,7 @@ const ProfilePage = () => {
     );
   }
 
+  // iterate
   return (
     <section className="bg-gray-50 dark:bg-gray-900 p-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
