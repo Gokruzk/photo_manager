@@ -35,7 +35,7 @@ const ImageUploadForm = () => {
       try {
         const result = await uploadImage(formData);
         if (result.status === 200) {
-          alert(`Image uploaded successfully. Filename: ${result.filename}`);
+          alert(`Image uploaded successfully. Filename: ${result.data}`);
         } else {
           alert("Failed to upload image.");
         }
@@ -50,6 +50,7 @@ const ImageUploadForm = () => {
       <input
         type="file"
         id="image_file"
+        accept="image/jpeg, image/png, image/gif"
         {...register("image_file", { required: "Please upload a file" })}
       />
       {errors.image_file && <p>{errors.image_file.message}</p>}
