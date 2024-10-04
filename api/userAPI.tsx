@@ -130,13 +130,13 @@ export const auth = async (user: UserLogin): Promise<AuthResponse> => {
         path: "/",
         maxAge: 60 * 60,
       });
-      return { status: 200, token: token };
+      return { status: res.status, token: token };
     } else {
-      return { status: 404, error: "Invalid username or password" };
+      return { status: res.status, error: res.data.detail };
     }
-  } catch (error) {
-    console.error("Error during authentication:", error);
-    return { status: 500, error: "Server error during authentication" };
+  } catch (error:any) {
+    console.error(error);
+    return { status: 500, error: error.response.data.detail };
   }
 };
 
