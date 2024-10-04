@@ -82,17 +82,11 @@ interface Dates {
 export interface UserImages {
   cod_image: number;
   cod_ubi: number;
+  cod_user: number;
   image: string;
   uploadedat: number;
   ubication: Country;
   uploaded: Dates;
-}
-
-export interface ImagesRetrieve {
-  cod_image: number;
-  cod_user: number;
-  description: string;
-  images: UserImages;
 }
 
 export interface ApiPromiseUser {
@@ -102,7 +96,7 @@ export interface ApiPromiseUser {
 }
 export interface ApiPromiseImages {
   status: number;
-  data?: ImagesRetrieve[];
+  data?: UserImages[];
   error?: string;
 }
 

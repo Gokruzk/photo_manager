@@ -1,7 +1,7 @@
 "use client";
 import { getUserImages } from "@/api/imageAPI";
 import LinkButton from "@/components/LinkButton";
-import { ImagesRetrieve, UserImages } from "@/types";
+import { UserImages } from "@/types";
 import { getUserSession } from "@/utils/userSession";
 import {
   QueryClient,
@@ -21,7 +21,7 @@ export default function Profile() {
 }
 
 const ProfilePage = () => {
-  const [userImages, setUserImages] = useState<ImagesRetrieve[]>();
+  const [userImages, setUserImages] = useState<UserImages[]>();
   const [currentUser, setCurrentUser] = useState<string>();
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -95,7 +95,7 @@ const ProfilePage = () => {
               >
                 <img
                   className="w-full h-32 object-cover rounded-t-lg"
-                  src={`${API_URL}/images/image/${image.images.image}`}
+                  src={`${API_URL}/images/image/${image.image}`}
                   alt=""
                 />
               </div>
