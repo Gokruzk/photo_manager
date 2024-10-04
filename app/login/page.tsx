@@ -30,7 +30,7 @@ function LoginForm() {
   const authMutation = useMutation({
     mutationFn: auth,
     onSuccess: (data) => {
-      if (data.status === 200) {
+      if (data.status === 204) {
         alert("Login successfully");
         router.push("/profile");
       } else {

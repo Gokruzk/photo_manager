@@ -101,7 +101,7 @@ function ProfileEdit() {
     mutationFn: (user: UserDetail) =>
       updateUser(userRetrieve?.username || "None", user),
     onSuccess: (data) => {
-      if (data.status === 200) {
+      if (data.status === 204) {
         alert("User data updated");
         router.push("/profile");
       } else {

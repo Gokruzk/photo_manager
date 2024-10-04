@@ -37,7 +37,7 @@ const ImageUploadForm = () => {
 
       try {
         const result = await uploadImage(formData);
-        if (result.status === 200) {
+        if (result.status === 201) {
           alert(`Image uploaded successfully. Filename: ${result.data}`);
         } else {
           alert("Failed to upload image.");

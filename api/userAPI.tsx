@@ -1,4 +1,9 @@
 "use server";
+import { NextRequest, NextResponse } from "next/server";
+import { COOKIE_NAME } from "@/constants";
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
+import axios from "axios";
 import {
   ApiPromiseUser,
   AuthResponse,
@@ -6,11 +11,6 @@ import {
   UserDetail,
   UserLogin,
 } from "@/types";
-import { NextRequest, NextResponse } from "next/server";
-import { COOKIE_NAME } from "@/constants";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
-import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const key = new TextEncoder().encode(process.env.NEXT_PUBLIC_SECRET_KEY);
@@ -23,14 +23,14 @@ const userAPI = axios.create({
 export const getUser = async (username: string): Promise<ApiPromiseUser> => {
   try {
     const res = await userAPI.get(`/user/${username}`);
-    if (res.data.status_code != 404) {
-      return { status: 200, data: res.data.result };
+    if (res.status === 200) {
+      return { status: res.status, data: res.data.result };
     } else {
-      return { status: 400, error: "The user does not exist" };
+      return { status: res.status, error: res.data.detail };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
-    return { status: 400, error: "The user does not exist" };
+    return { status: 400, error: error.response.data.detail };
   }
 };
 
@@ -38,7 +38,7 @@ export const getUser = async (username: string): Promise<ApiPromiseUser> => {
 export const addUser = async (user: User): Promise<ApiPromiseUser> => {
   try {
     const res = await userAPI.post("/user", user);
-    if (res.data.status_code != 400) {
+    if (res.status === 201) {
       cookies().set({
         name: COOKIE_NAME,
         value: res.data.result["token"],
@@ -47,13 +47,13 @@ export const addUser = async (user: User): Promise<ApiPromiseUser> => {
         path: "/",
         maxAge: 60 * 60,
       });
-      return { status: 200 };
+      return { status: res.status };
     } else {
-      return { status: 401, error: "Error while registering user" };
+      return { status: res.status, error: res.data.detail };
     }
-  } catch (error) {
-    console.error("Error while registering user", error);
-    return { status: 401, error: "Error while registering user" };
+  } catch (error: any) {
+    console.error(error);
+    return { status: 400, error: error.response.data.detail };
   }
 };
 
@@ -64,7 +64,7 @@ export const updateUser = async (
 ): Promise<ApiPromiseUser> => {
   try {
     const res = await userAPI.put(`/user/${username}`, user);
-    if (res.data.status_code != 400) {
+    if (res.status === 204) {
       // auth the user with the new data
       const au_res = await auth({
         username: user.username,
@@ -73,18 +73,18 @@ export const updateUser = async (
       if (au_res.status == 204 && au_res.token) {
         // update session with the new token
         updateSessionLocal(au_res.token);
-        return { status: 200 };
+        return { status: res.status };
       }
-      return { status: 200 };
+      return { status: res.status };
     } else {
       return {
-        status: 401,
-        error: `Error while updating user. Detail: ${res.data.detail}`,
+        status: res.status,
+        error: res.data.detail,
       };
     }
-  } catch (error) {
-    console.error("Error during updating", error);
-    return { status: 401, error: "Error while updating user" };
+  } catch (error: any) {
+    console.error(error);
+    return { status: 400, error: error.response.data.detail };
   }
 };
 
@@ -93,7 +93,7 @@ export const deleteUser = async (username: string): Promise<ApiPromiseUser> => {
   try {
     const res = await userAPI.delete(`/user/${username}`);
     // remove cookie
-    if (res.data.status_code != 404) {
+    if (res.status === 204) {
       cookies().set({
         name: COOKIE_NAME,
         value: "",
@@ -101,16 +101,16 @@ export const deleteUser = async (username: string): Promise<ApiPromiseUser> => {
         sameSite: "strict",
         path: "/",
       });
-      return { status: 200 };
+      return { status: res.status };
     } else {
       return {
-        status: 401,
-        error: `Error while deleting user. Detail: ${res.data.detail}`,
+        status: res.status,
+        error: res.data.detail,
       };
     }
-  } catch (error) {
-    console.error("Error while deleting user", error);
-    return { status: 401, error: "Error while deleting user" };
+  } catch (error: any) {
+    console.error(error);
+    return { status: 400, error: error.response.data.detail };
   }
 };
 
@@ -118,9 +118,9 @@ export const deleteUser = async (username: string): Promise<ApiPromiseUser> => {
 export const auth = async (user: UserLogin): Promise<AuthResponse> => {
   try {
     // auth user
-    const data = await userAPI.post("/auth/signin", user);
-    if (data.data.status_code != 401) {
-      const token = data.data.result.token;
+    const res = await userAPI.post("/auth/signin", user);
+    if (res.status === 200) {
+      const token = res.data.result.token;
       // create the cookie
       cookies().set({
         name: COOKIE_NAME,
@@ -140,7 +140,7 @@ export const auth = async (user: UserLogin): Promise<AuthResponse> => {
   }
 };
 
-// logout 
+// logout
 export const logout = () => {
   try {
     // remove cookie

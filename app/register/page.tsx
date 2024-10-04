@@ -32,7 +32,7 @@ const RegisterForm = () => {
   const addUserMutation = useMutation({
     mutationFn: addUser,
     onSuccess: (data) => {
-      if (data.status === 200) {
+      if (data.status === 201) {
         alert("User registered");
         router.push("/profile");
       } else {

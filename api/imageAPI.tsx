@@ -1,4 +1,9 @@
-import { ApiPromiseImages, ApiPromiseImagesD, ImagesD, UserImages } from "@/types";
+import {
+  ApiPromiseImages,
+  ApiPromiseImagesD,
+  ImagesD,
+  UserImages,
+} from "@/types";
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -8,7 +13,9 @@ const imageAPI = axios.create({
 });
 
 // upload image
-export const uploadImage = async (formdata: FormData): Promise<ApiPromiseImages> => {
+export const uploadImage = async (
+  formdata: FormData
+): Promise<ApiPromiseImages> => {
   try {
     const res = await imageAPI.post("/images", formdata, {
       headers: {
@@ -16,33 +23,37 @@ export const uploadImage = async (formdata: FormData): Promise<ApiPromiseImages>
       },
     });
     if (res.status === 201) {
-      return { status: 200, data: res.data.result };
+      return { status: res.status, data: res.data.result };
     } else {
-      return { status: res.status, error: "Error while uploading image" };
+      return { status: res.status, error: res.data.detail };
     }
-  } catch (error) {
-    console.error("Error while uploading image", error);
-    return { status: 401, error: "Error while uploading image" };
+  } catch (error: any) {
+    console.error(error);
+    return { status: 400, error: error.response.data.detail };
   }
 };
 
 // get user images
-export const getUserImages = async (username: string): Promise<ApiPromiseImages> => {
+export const getUserImages = async (
+  username: string
+): Promise<ApiPromiseImages> => {
   try {
     const res = await imageAPI.get(`/images/${username}`);
-    if (res.data.status_code != 404) {
-      return { status: 200, data: res.data.result };
+    if (res.status === 200) {
+      return { status: res.status, data: res.data.result };
     } else {
-      return { status: 400, error: "The user does not exist" };
+      return { status: 400, error: res.data.detail };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
-    return { status: 400, error: "The user does not exist" };
+    return { status: 400, error: error.response.data.detail };
   }
 };
 
 // delete image
-export const deleteUserImage = async (data: ImagesD): Promise<ApiPromiseImagesD> => {
+export const deleteUserImage = async (
+  data: ImagesD
+): Promise<ApiPromiseImagesD> => {
   try {
     const res = await imageAPI.delete(`/images`, {
       params: {
@@ -50,13 +61,13 @@ export const deleteUserImage = async (data: ImagesD): Promise<ApiPromiseImagesD>
         cod_image: data.cod_image,
       },
     });
-    if (res.data.status_code != 404) {
-      return { status: 200 };
+    if ((res.status = 204)) {
+      return { status: res.status };
     } else {
-      return { status: 400, error: "The user does not exist" };
+      return { status: res.status, error: res.data.detail };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
-    return { status: 400, error: "The user does not exist" };
+    return { status: 400, error: error.response.data.detail };
   }
 };

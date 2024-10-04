@@ -51,7 +51,7 @@ const ProfilePage = () => {
     if (confirm("Are you sure?") && currentUser) {
       try {
         const result = await deleteUser(currentUser);
-        if (result.status === 200) {
+        if (result.status === 204) {
           router.push("/");
         } else {
           console.error(result.error);
