@@ -27,6 +27,13 @@ export interface LinkButtonProps {
   style: string;
 }
 
+export interface DeleteButtonProps {
+  title: string;
+  style: string;
+  cod_image: number;
+  delete_image: Function
+}
+
 export interface Country {
   cod_ubi: number;
   country: string;
@@ -34,11 +41,6 @@ export interface Country {
 
 export interface Images {
   image_file: FileList;
-}
-
-export interface ImagesD {
-  cod_user: number;
-  cod_image: number;
 }
 
 export interface UserLogin {
