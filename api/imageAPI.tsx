@@ -1,7 +1,6 @@
 import {
   ApiPromiseImages,
   ApiPromiseImagesD,
-  ImagesD,
   UserImages,
 } from "@/types";
 import axios from "axios";
@@ -52,16 +51,11 @@ export const getUserImages = async (
 
 // delete image
 export const deleteUserImage = async (
-  data: ImagesD
+  cod_image: number
 ): Promise<ApiPromiseImagesD> => {
   try {
-    const res = await imageAPI.delete(`/images`, {
-      params: {
-        cod_user: data.cod_user,
-        cod_image: data.cod_image,
-      },
-    });
-    if ((res.status = 204)) {
+    const res = await imageAPI.delete(`/images/${cod_image}`);
+    if ((res.status === 204)) {
       return { status: res.status };
     } else {
       return { status: res.status, error: res.data.detail };

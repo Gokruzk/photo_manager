@@ -1,11 +1,13 @@
 "use client";
-import { getUserImages } from "@/api/imageAPI";
+import { deleteUserImage, getUserImages } from "@/api/imageAPI";
+import DeleteButton from "@/components/DeleteButton";
 import LinkButton from "@/components/LinkButton";
 import { UserImages } from "@/types";
 import { getUserSession } from "@/utils/userSession";
 import {
   QueryClient,
   QueryClientProvider,
+  useMutation,
   useQuery,
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -53,6 +55,20 @@ const ProfilePage = () => {
       setUserImages(images.data);
     }
   }, [images]);
+
+  const deletePhoto = useMutation({
+    mutationFn: deleteUserImage,
+    onSuccess: (data) => {
+      if (data.status === 204) {
+        alert("Image deleted");
+      } else {
+        alert(`${data.error}`);
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   if (isLoading) return <div>Loading...</div>;
   else if (isError) return <div>Error {error.message}</div>;
@@ -104,14 +120,12 @@ const ProfilePage = () => {
                   Some quick example text to build on the card title and make up
                   the bulk of the card's content.
                 </p>
-                <button
-                  type="button"
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
-                  data-twe-ripple-init
-                  data-twe-ripple-color="light"
-                >
-                  Eliminar
-                </button>
+                <DeleteButton
+                  cod_image={image.cod_image}
+                  delete_image={deletePhoto.mutate}
+                  style="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+                  title="Eliminar"
+                />
               </div>
             </div>
           );
