@@ -1,5 +1,4 @@
 "use server";
-import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME } from "@/constants";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
@@ -11,6 +10,7 @@ import {
   UserDetail,
   UserLogin,
 } from "@/types";
+import { redirect } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const key = new TextEncoder().encode(process.env.NEXT_PUBLIC_SECRET_KEY);
@@ -159,34 +159,37 @@ export const logout = () => {
 };
 
 // decrypt function for jwt
-export async function decrypt(input: string): Promise<any> {
-  const { payload } = await jwtVerify(input, key, {
-    algorithms: ["HS256"],
-  });
-  return payload;
+export async function decrypt(input: string) {
+  try {
+    const { payload } = await jwtVerify(input, key, {
+      algorithms: ["HS256"],
+    });
+    return payload;
+  } catch {
+    return false;
+  }
 }
 
-// update session
-export async function updateSession(request: NextRequest) {
-  // get current cookie
-  const session = request.cookies.get(COOKIE_NAME)?.value;
+export async function verifySession() {
+  const cookieStore = (cookies()).get("user")?.value;
 
-  // if the cookie does not exist
-  if (!session) return;
+  if (cookieStore) {
+    const session = await decrypt(cookieStore);
 
-  // refresh the session so it doesn't expire
-  const parsed = await decrypt(session);
-  parsed.exp = new Date(Date.now() + 10 * 1000);
-  const res = NextResponse.next();
-  res.cookies.set({
-    name: COOKIE_NAME,
-    value: session,
-    httpOnly: true,
-    sameSite: "strict",
-    path: "/",
-    maxAge: 60 * 60,
-  });
-  return res;
+    if (typeof session !== "boolean") {
+      if (typeof session?.username !== "string") {
+        redirect("/login");
+      }
+
+      // Verify if the user exists
+      const res = await getUser(session.username);
+      if (res.status !== 200) {
+        return { valid: false };
+      }
+      return { valid: true, session };
+    }
+  }
+  return { valid: false };
 }
 
 export async function updateSessionLocal(cookie: string) {
