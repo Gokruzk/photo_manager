@@ -33,7 +33,7 @@ const RegisterForm = () => {
     mutationFn: addUser,
     onSuccess: (data) => {
       if (data.status === 201) {
-        alert("User registered");
+        alert("User registered, check your email");
         router.push("/profile");
       } else {
         alert(`Register failed, ${data.error}`);
