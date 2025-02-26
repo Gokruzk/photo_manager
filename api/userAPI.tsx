@@ -63,7 +63,10 @@ export const updateUser = async (
   user: UserDetail
 ): Promise<ApiPromiseUser> => {
   try {
-    const res = await userAPI.put(`/user/${username}`, user);
+    const token = cookies().get("user")?.value;
+    const res = await userAPI.put(`/user/${username}`, user, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (res.status === 204) {
       // auth the user with the new data
       const au_res = await auth({
@@ -91,7 +94,10 @@ export const updateUser = async (
 // delete user
 export const deleteUser = async (username: string): Promise<ApiPromiseUser> => {
   try {
-    const res = await userAPI.delete(`/user/${username}`);
+    const token = cookies().get("user")?.value;
+    const res = await userAPI.delete(`/user/${username}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     // remove cookie
     if (res.status === 204) {
       cookies().set({
@@ -117,10 +123,13 @@ export const deleteUser = async (username: string): Promise<ApiPromiseUser> => {
 // user auth
 export const auth = async (user: UserLogin): Promise<AuthResponse> => {
   try {
+    const formData = new FormData();
+    formData.append("username", user.username);
+    formData.append("password", user.password);
     // auth user
-    const res = await userAPI.post("/auth/signin", user);
+    const res = await userAPI.post("/auth/login", formData);
     if (res.status === 200) {
-      const token = res.data.result.token;
+      const token = res.data.access_token;
       // create the cookie
       cookies().set({
         name: COOKIE_NAME,
@@ -134,7 +143,7 @@ export const auth = async (user: UserLogin): Promise<AuthResponse> => {
     } else {
       return { status: res.status, error: res.data.detail };
     }
-  } catch (error:any) {
+  } catch (error: any) {
     console.error(error);
     return { status: 500, error: error.response.data.detail };
   }
@@ -171,7 +180,7 @@ export async function decrypt(input: string) {
 }
 
 export async function verifySession() {
-  const cookieStore = (cookies()).get("user")?.value;
+  const cookieStore = cookies().get("user")?.value;
 
   if (cookieStore) {
     const session = await decrypt(cookieStore);

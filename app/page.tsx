@@ -21,11 +21,11 @@ export default function Home() {
               href="/register"
               style="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mr-2 rounded"
             />
-            <LinkButton
+            {/* <LinkButton
               title="About me"
               href="/aboutme"
               style="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            />
+            /> */}
           </div>
         </div>
       </div>

@@ -1,9 +1,7 @@
-import {
-  ApiPromiseImages,
-  ApiPromiseImagesD,
-  UserImages,
-} from "@/types";
+"use server";
 import axios from "axios";
+import { cookies } from "next/headers";
+import { ApiPromiseImages, ApiPromiseImagesD, UserImages } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -16,9 +14,11 @@ export const uploadImage = async (
   formdata: FormData
 ): Promise<ApiPromiseImages> => {
   try {
+    const token = cookies().get("user")?.value;
     const res = await imageAPI.post("/images", formdata, {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
       },
     });
     if (res.status === 201) {
@@ -37,7 +37,10 @@ export const getUserImages = async (
   username: string
 ): Promise<ApiPromiseImages> => {
   try {
-    const res = await imageAPI.get(`/images/${username}`);
+    const token = cookies().get("user")?.value;
+    const res = await imageAPI.get(`/images/${username}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (res.status === 200) {
       return { status: res.status, data: res.data.result };
     } else {
@@ -54,8 +57,11 @@ export const deleteUserImage = async (
   cod_image: number
 ): Promise<ApiPromiseImagesD> => {
   try {
-    const res = await imageAPI.delete(`/images/${cod_image}`);
-    if ((res.status === 204)) {
+    const token = cookies().get("user")?.value;
+    const res = await imageAPI.delete(`/images/${cod_image}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.status === 204) {
       return { status: res.status };
     } else {
       return { status: res.status, error: res.data.detail };
