@@ -23,7 +23,8 @@ export async function GET() {
   // return username
   try {
     const response = {
-      username: data["username"],
+      username:
+        typeof data === "object" && "username" in data ? data.username : "",
     };
     return new Response(JSON.stringify(response));
   } catch (error) {

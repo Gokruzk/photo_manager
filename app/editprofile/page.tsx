@@ -99,17 +99,17 @@ function ProfileEdit() {
 
   const { mutate: updateUserMutation } = useMutation({
     mutationFn: (user: UserDetail) =>
-      updateUser(userRetrieve?.username || "None", user),
+      updateUser(user),
     onSuccess: (data) => {
       if (data.status === 204) {
-        alert("User data updated");
+        alert(data.data || "Se actualizó la información correctamente");
         router.push("/profile");
       } else {
         alert(data.error);
       }
     },
     onError: () => {
-      alert("An error occurred during updating");
+      alert("Ocurrió un error innesperado");
     },
   });
 

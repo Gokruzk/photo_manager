@@ -1,7 +1,6 @@
 "use client";
 import { auth } from "@/api/userAPI";
 import LinkButton from "@/components/LinkButton";
-import { UserLogin } from "@/types";
 import {
   QueryClient,
   QueryClientProvider,

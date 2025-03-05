@@ -41,7 +41,7 @@ export const addUser = async (user: User): Promise<ApiPromiseUser> => {
     if (res.status === 201) {
       cookies().set({
         name: COOKIE_NAME,
-        value: res.data.result["token"],
+        value: res.data.result.access_token,
         httpOnly: true,
         sameSite: "strict",
         path: "/",
@@ -59,12 +59,11 @@ export const addUser = async (user: User): Promise<ApiPromiseUser> => {
 
 // update user
 export const updateUser = async (
-  username: string,
   user: UserDetail
 ): Promise<ApiPromiseUser> => {
   try {
     const token = cookies().get("user")?.value;
-    const res = await userAPI.put(`/user/${username}`, user, {
+    const res = await userAPI.put(`/user/update`, user, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.status === 204) {
@@ -78,7 +77,7 @@ export const updateUser = async (
         updateSessionLocal(au_res.token);
         return { status: res.status };
       }
-      return { status: res.status };
+      return { status: res.status, data: res.data.detail };
     } else {
       return {
         status: res.status,
