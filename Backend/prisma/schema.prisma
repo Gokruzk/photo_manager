@@ -1,0 +1,85 @@
+generator client {
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model Ubication {
+  cod_ubi Int      @id
+  country String   @db.VarChar(100)
+  Images  Images[]
+  User    User[]
+
+  @@map("ubication")
+}
+
+model State {
+  cod_state Int    @id
+  state     String @db.VarChar(8)
+  User      User[]
+
+  @@map("users_state")
+}
+
+model Descriptions {
+  cod_description Int          @id
+  description     String       @db.VarChar(8)
+  User_Dates      User_Dates[]
+
+  @@map("date_descriptions")
+}
+
+model Dates {
+  cod_date   Int          @id
+  year       Int
+  month      Int
+  day        DateTime
+  User_Dates User_Dates[]
+  Images     Images[]
+
+  @@map("dates")
+}
+
+model Images {
+  cod_image  Int       @id @default(autoincrement())
+  cod_ubi    Int
+  cod_user   Int
+  image      String
+  uploadedat Int
+  ubication  Ubication @relation(fields: [cod_ubi], references: [cod_ubi])
+  uploaded   Dates     @relation(fields: [uploadedat], references: [cod_date])
+  user       User      @relation(fields: [cod_user], references: [cod_user])
+
+  @@map("images")
+}
+
+model User {
+  cod_user   Int          @id @default(autoincrement())
+  cod_ubi    Int
+  cod_state  Int
+  username   String       @unique @db.VarChar(15)
+  email      String       @db.VarChar(50)
+  password   String       @db.VarChar(300)
+  ubication  Ubication    @relation(fields: [cod_ubi], references: [cod_ubi])
+  state      State        @relation(fields: [cod_state], references: [cod_state])
+  User_Dates User_Dates[]
+  Images     Images[]
+
+  @@map("users")
+}
+
+model User_Dates {
+  cod_date        Int
+  cod_user        Int
+  cod_description Int
+  date            Dates        @relation(fields: [cod_date], references: [cod_date])
+  user            User         @relation(fields: [cod_user], references: [cod_user])
+  description     Descriptions @relation(fields: [cod_description], references: [cod_description])
+
+  @@id([cod_date, cod_user, cod_description])
+  @@map("users_dates")
+}
