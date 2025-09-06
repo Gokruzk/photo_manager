@@ -6,7 +6,7 @@ REST API made with FastAPI, PrismaORM and PostgreSQL for manage users' photos
 
 ## Installation and Configuration
 
-### 1: Install uv
+### 1. Install uv
 
 First, create a virtual environment to manage the project dependencies.
 
@@ -38,13 +38,13 @@ uv run prisma generate
 uv run prisma migrate dev
 ```
 
-### 6: Create the .env from env_template.txt file
+### 6. Create the .env from env_template.txt file
 
 ```bash
 copy .\env_template.txt .env
 ```
 
-### 7: Run
+### 7. Run
 
 ```bash
 uv run main.py
@@ -62,13 +62,13 @@ This is a Next.js project
 
 ## Installation and Configuration
 
-### 1: Install dependencies
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2: Run
+### 2. Run
 
 ```bash
 npm run dev
