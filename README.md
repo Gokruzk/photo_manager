@@ -58,7 +58,7 @@ Database: photo_manager
 
 ## Architecture
 
-<img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
+<img src="https://github.com/Gokruzk/photo_manager/blob/auth_hex/Backend/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
 
 ## Frontend
 
