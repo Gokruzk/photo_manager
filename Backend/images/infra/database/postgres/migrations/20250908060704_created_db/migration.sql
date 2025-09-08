@@ -34,10 +34,10 @@ CREATE TABLE "dates" (
 
 -- CreateTable
 CREATE TABLE "images" (
-    "cod_image" SERIAL NOT NULL,
+    "cod_image" UUID NOT NULL,
     "cod_ubi" INTEGER NOT NULL,
-    "cod_user" INTEGER NOT NULL,
-    "image" TEXT NOT NULL,
+    "cod_user" UUID NOT NULL,
+    "image_path" TEXT NOT NULL,
     "uploadedat" INTEGER NOT NULL,
 
     CONSTRAINT "images_pkey" PRIMARY KEY ("cod_image")
@@ -45,7 +45,7 @@ CREATE TABLE "images" (
 
 -- CreateTable
 CREATE TABLE "users" (
-    "cod_user" SERIAL NOT NULL,
+    "cod_user" UUID NOT NULL,
     "cod_ubi" INTEGER NOT NULL,
     "cod_state" INTEGER NOT NULL,
     "username" VARCHAR(15) NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "users_dates" (
     "cod_date" INTEGER NOT NULL,
-    "cod_user" INTEGER NOT NULL,
+    "cod_user" UUID NOT NULL,
     "cod_description" INTEGER NOT NULL,
 
     CONSTRAINT "users_dates_pkey" PRIMARY KEY ("cod_date","cod_user","cod_description")

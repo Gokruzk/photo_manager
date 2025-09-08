@@ -6,14 +6,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DB_URL")
+  url      = env("POSTGRES_URL")
 }
 
 model Ubication {
   cod_ubi Int      @id
   country String   @db.VarChar(100)
-  Images  Images[]
-  User    User[]
+  images  Images[]
+  user    User[]
 
   @@map("ubication")
 }
@@ -21,7 +21,7 @@ model Ubication {
 model State {
   cod_state Int    @id
   state     String @db.VarChar(8)
-  User      User[]
+  user      User[]
 
   @@map("users_state")
 }
@@ -29,7 +29,7 @@ model State {
 model Descriptions {
   cod_description Int          @id
   description     String       @db.VarChar(8)
-  User_Dates      User_Dates[]
+  user_dates      User_Dates[]
 
   @@map("date_descriptions")
 }
@@ -39,17 +39,17 @@ model Dates {
   year       Int
   month      Int
   day        DateTime
-  User_Dates User_Dates[]
-  Images     Images[]
+  user_dates User_Dates[]
+  images     Images[]
 
   @@map("dates")
 }
 
 model Images {
-  cod_image  Int       @id @default(autoincrement())
+  cod_image  String    @id @default(uuid()) @db.Uuid
   cod_ubi    Int
-  cod_user   Int
-  image      String
+  cod_user   String    @db.Uuid
+  image_path String
   uploadedat Int
   ubication  Ubication @relation(fields: [cod_ubi], references: [cod_ubi])
   uploaded   Dates     @relation(fields: [uploadedat], references: [cod_date])
@@ -59,7 +59,7 @@ model Images {
 }
 
 model User {
-  cod_user   Int          @id @default(autoincrement())
+  cod_user   String       @id @default(uuid()) @db.Uuid
   cod_ubi    Int
   cod_state  Int
   username   String       @unique @db.VarChar(15)
@@ -67,15 +67,15 @@ model User {
   password   String       @db.VarChar(300)
   ubication  Ubication    @relation(fields: [cod_ubi], references: [cod_ubi])
   state      State        @relation(fields: [cod_state], references: [cod_state])
-  User_Dates User_Dates[]
-  Images     Images[]
+  user_dates User_Dates[]
+  images     Images[]
 
   @@map("users")
 }
 
 model User_Dates {
   cod_date        Int
-  cod_user        Int
+  cod_user        String       @db.Uuid
   cod_description Int
   date            Dates        @relation(fields: [cod_date], references: [cod_date])
   user            User         @relation(fields: [cod_user], references: [cod_user])
