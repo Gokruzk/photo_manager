@@ -56,6 +56,10 @@ Schema: public
 Database: photo_manager  
 <img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/db_diagram.png" height=500 width=700 alt="database model">
 
+## Architecture
+
+<img src="https://github.com/Gokruzk/photo_manager/blob/auth_hex/Backend/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
+
 ## Frontend
 
 This is a Next.js project
