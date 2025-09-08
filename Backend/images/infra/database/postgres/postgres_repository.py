@@ -4,7 +4,6 @@ from typing import List
 from pathlib import Path
 from datetime import datetime
 from images.infra.web.schemas import Image, UploadImage
-from images.app.ports.image_repository import ImageRepository
 from images.domain.exceptions import ImageNotFoundError, ImageUploadError
 from images.infra.database.postgres.postgres_connection import PrismaConnection
 
@@ -48,7 +47,7 @@ class PrismaImageRepository:
 
         except Exception as e:
             raise ImageUploadError(f"Error uploading image: {e}")
-        
+
         return image
 
     async def delete(self, cod_image: UUID) -> Image:
