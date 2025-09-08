@@ -13,7 +13,7 @@ home = Path.home()
 images_folder = Path(home, "Images_Photo_Manager")
 
 
-class PrismaImageRepository(ImageRepository):
+class PrismaImageRepository:
     def __init__(self, conn: PrismaConnection):
         self.conn = conn
 
