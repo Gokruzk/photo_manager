@@ -1,10 +1,10 @@
 import os
-from uuid import UUID, uuid4
 import logging
+from uuid import UUID, uuid4
 from pathlib import Path as pt
-from images.infra.web.schemas import Image, ResponseSchema
 from images.app.use_cases.image_service import ImageService
 from images.infra.web.dependencies import get_image_repository
+from images.infra.web.schemas import ResponseSchema, UploadImage
 from fastapi import APIRouter, Depends, Path, File, UploadFile, status, Form, HTTPException
 from images.domain.exceptions import ImageDeletedError, ImageNotFoundError, ImageUploadError
 
@@ -33,7 +33,7 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
     status_code=status.HTTP_200_OK
 )
 async def find_by_user(
-    cod_user: UUID = Path(..., alias="cod_user"),
+    cod_user: str = Path(..., alias="cod_user"),
     repository=Depends(get_image_repository)
 ) -> ResponseSchema:
 
@@ -54,7 +54,7 @@ async def find_by_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred while retrieving images"
         )
-    images_schema = [Image.model_validate(img) for img in images]
+
     return ResponseSchema(detail="Images successfully retrieved", result=images)
 
 
@@ -65,6 +65,7 @@ async def find_by_user(
 )
 async def upload(
     cod_user: UUID = Form(...),
+    cod_ubi: int = Form(...),
     file: UploadFile = File(...),
     repository=Depends(get_image_repository)
 ) -> ResponseSchema:
@@ -92,18 +93,23 @@ async def upload(
     new_filename = f"{uuid4()}.{file_type}"
     file.filename = new_filename
 
+    image_path = pt(images_folder, file.filename)
+
+    image_dto = UploadImage(cod_user=cod_user,
+                        cod_ubi=cod_ubi, image_path=str(image_path))
+
     try:
-        image = await service.upload(cod_user, file.filename, contents)
+        image = await service.upload(image_dto, contents)
 
     except ImageUploadError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to upload image due to a business logic error"
+            detail="Failed to upload image"
         )
 
     except Exception as e:
         logger.exception(
-            "Unexpected error uploading image for user %s", cod_user)
+            "Unexpected error uploading image for user %s", image.cod_user)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred while uploading the image"
@@ -117,7 +123,7 @@ async def upload(
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete(
-    cod_image: UUID = Path(..., alias="cod_image"),
+    cod_image: str = Path(..., alias="cod_image"),
     repository=Depends(get_image_repository)
 ) -> None:
 
@@ -135,7 +141,7 @@ async def delete(
     except ImageDeletedError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to delete image due to a business logic error"
+            detail="Failed to delete image due"
         )
 
     except Exception as e:
