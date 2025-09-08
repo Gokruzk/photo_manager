@@ -22,6 +22,7 @@ class Dates:
 class UploadImage:
     cod_user:   UserCod
     cod_ubi:    UbicationCod
+    image_path: str
 
 
 @dataclass(frozen=True)

@@ -20,8 +20,8 @@ class Dates(BaseModel):
 
 class UploadImage(BaseModel):
     cod_user:   UUID
-    cod_ubi:    UUID
-    image_path:      str
+    cod_ubi:    int
+    image_path: str
 
 
 class Image(UploadImage):
