@@ -6,6 +6,8 @@ REST API for manage users' photos
 
 ## Installation and Configuration
 
+This project use [uv](https://docs.astral.sh/uv), a fast Python package and environment manager (alternative to pip + venv/poetry).
+
 ### 1. Change directory
 
 ```bash
@@ -51,35 +53,22 @@ uv run pytest
 
 ## Database
 
-You can choose between three types of database (postgres, mysql, mongo)
+You can choose between PostgreSQL (Prisma) or MySQL (SQLAlchemy).
+
+### PostgreSQL (Prisma)
 
 ### Generate prisma client for postgres
 ```bash
 uv run prisma generate --schema=.\images\infra\database\postgres\schema.prisma
 ```
-### Make migrations
+### Run migrations
 ```bash
 uv run prisma migrate dev --schema=.\images\infra\database\postgres\schema.prisma
 ```
+### MySQL (SQLAlchemy)
+Currently in progress.
 
-### mysql
-```bash
-
-```
-### Make migrations
-```bash
-
-```
-
-### mongodb
-```bash
-
-```
-### Make migrations
-```bash
-
-```
-
+### Entity Relationship Model and Entity Relationship Diagram
 As you can see there are relationships between some tables. However, in the implementation I decide to seperate in specific databases for auth and images.
 
 <img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/db_diagram.png" height=500 width=700 alt="database model">
