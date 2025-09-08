@@ -68,6 +68,7 @@ uv run prisma migrate dev --schema=.\images\infra\database\postgres\schema.prism
 ### MySQL (SQLAlchemy)
 Currently in progress.
 
+### Entity Relationship Model and Entity Relationship Diagram
 As you can see there are relationships between some tables. However, in the implementation I decide to seperate in specific databases for auth and images.
 
 <img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/db_diagram.png" height=500 width=700 alt="database model">
