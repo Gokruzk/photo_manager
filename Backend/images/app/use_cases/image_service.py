@@ -1,7 +1,7 @@
 from uuid import UUID
 from typing import List
 
-from images.domain.entities import Image
+from images.domain.entities import Image, UploadImage
 from images.app.ports.image_repository import ImageRepository
 from images.domain.exceptions import ImageDeletedError, ImageNotFoundError, ImageUploadError
 
@@ -28,12 +28,12 @@ class ImageService:
 
         return image
 
-    async def upload(self, cod_user: UUID, filename: str, content: bytes) -> Image:
-        image = await self.repository.upload(cod_user, filename, content)
+    async def upload(self, upload_image: UploadImage, content: bytes) -> Image:
+        image = await self.repository.upload(upload_image, content)
 
         if not image:
             raise ImageUploadError(
-                f"Unexpected error uploading image for user {cod_user}")
+                f"Unexpected error uploading image for user {upload_image.cod_user}")
 
         return image
 

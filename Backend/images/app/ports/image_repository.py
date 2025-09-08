@@ -15,7 +15,7 @@ class ImageRepository(ABC):
         pass
 
     @abstractmethod
-    async def upload(image: UploadImage, filename: str, content: bytes) -> Image:
+    async def upload(upload_image: UploadImage, content: bytes) -> Image:
         pass
 
     @abstractmethod
