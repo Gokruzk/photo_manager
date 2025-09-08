@@ -1,6 +1,5 @@
 import pytest
 from io import BytesIO
-from fastapi import UploadFile
 from unittest.mock import AsyncMock
 
 from images.app.ports.image_repository import ImageRepository

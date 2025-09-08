@@ -29,7 +29,6 @@ class TestImageService:
         service = ImageService(mock_image_repository)
 
         # Act
-
         result = await service.find_by_cod(cod_image)
 
         # Assert
@@ -72,7 +71,6 @@ class TestImageService:
                             cod_ubi=UbicationCod(value=1), image_path="/image/path")
 
         # Act
-
         result = await service.upload(image, fake_upload_file)
 
         # Assert
@@ -90,7 +88,7 @@ class TestImageService:
         service = ImageService(mock_image_repository)
         image = UploadImage(cod_user=UserCod(value=cod_user),
                             cod_ubi=UbicationCod(value=1), image_path="/image/path")
-        
+
         # Act & Assert
         with pytest.raises(ImageUploadError, match=f"Unexpected error uploading image for user {cod_user}"):
             await service.upload(image, fake_upload_file)
@@ -115,7 +113,6 @@ class TestImageService:
         service = ImageService(mock_image_repository)
 
         # Act
-
         result = await service.delete(cod_image)
 
         # Assert
