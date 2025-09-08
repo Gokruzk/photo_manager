@@ -19,11 +19,6 @@ async def get_mysql_connection():
     pass
 
 
-async def get_mongo_connection():
-    """async connection with mongodb"""
-    pass
-
-
 async def get_image_repository() -> ImageRepository:
     db_type = DBConfig.db()
 
@@ -32,9 +27,6 @@ async def get_image_repository() -> ImageRepository:
         return PrismaImageRepository(conn)
     elif db_type == "mysql":
         # Implementa MySQL aquí
-        pass
-    elif db_type == "mongodb":
-        # Implementa Mongo aquí
         pass
     else:
         raise ValueError(f"Unsupported database type: {db_type}")
