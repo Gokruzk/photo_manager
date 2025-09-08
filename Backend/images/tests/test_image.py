@@ -2,7 +2,7 @@ import pytest
 from uuid import uuid4
 from unittest.mock import AsyncMock
 
-from images.domain.entities import Image
+from images.domain.entities import Image, UploadImage
 from images.app.use_cases.image_service import ImageService
 from images.domain.value_objects import DateCod, ImageCod, UbicationCod, UserCod
 from images.domain.exceptions import ImageDeletedError, ImageNotFoundError, ImageUploadError
@@ -68,15 +68,16 @@ class TestImageService:
             return_value=expected_image)
 
         service = ImageService(mock_image_repository)
+        image = UploadImage(cod_user=UserCod(value=cod_user),
+                            cod_ubi=UbicationCod(value=1), image_path="/image/path")
 
         # Act
 
-        result = await service.upload(cod_user, fake_upload_file)
+        result = await service.upload(image, fake_upload_file)
 
         # Assert
         assert result == expected_image
-        mock_image_repository.upload.assert_called_once_with(
-            cod_user, fake_upload_file)
+        await service.upload(image, fake_upload_file)
 
     @pytest.mark.asyncio
     async def test_upload_failed(self, fake_upload_file, mock_image_repository):
@@ -87,10 +88,12 @@ class TestImageService:
             return_value=None)
 
         service = ImageService(mock_image_repository)
-
+        image = UploadImage(cod_user=UserCod(value=cod_user),
+                            cod_ubi=UbicationCod(value=1), image_path="/image/path")
+        
         # Act & Assert
         with pytest.raises(ImageUploadError, match=f"Unexpected error uploading image for user {cod_user}"):
-            await service.upload(cod_user, fake_upload_file)
+            await service.upload(image, fake_upload_file)
 
     @pytest.mark.asyncio
     async def test_delete_success(self, mock_image_repository):

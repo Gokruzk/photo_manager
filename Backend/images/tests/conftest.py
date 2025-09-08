@@ -14,4 +14,4 @@ def mock_image_repository():
 @pytest.fixture
 def fake_upload_file():
     file_bytes = BytesIO(b"fake-image-bytes")
-    return UploadFile(filename="test.png", file=file_bytes)
+    return file_bytes
