@@ -2,9 +2,15 @@
 
 ## Backend
 
-REST API made with FastAPI, PrismaORM and PostgreSQL for manage users' photos
+REST API for manage users' photos
 
 ## Installation and Configuration
+
+### 1. Change directory
+
+```bash
+cd .\Backend\
+```
 
 ### 1. Install uv
 
@@ -26,34 +32,56 @@ uv init
 uv sync
 ```
 
-### 4. Generate Prisma client
-
-```bash
-uv run prisma generate
-```
-
-### 5. Create database
-
-```bash
-uv run prisma migrate dev
-```
-
-### 6. Create the .env from env_template.txt file
+### 4. Create the .env from env_template.txt file
 
 ```bash
 copy .\env_template.txt .env
 ```
 
-### 7. Run
+### 5. Run
 
 ```bash
 uv run main.py
 ```
 
+## Tests
+```bash
+uv run pytest
+```
+
 ## Database
 
-Schema: public  
-Database: photo_manager  
+You can choose between three types of database (postgres, mysql, mongo)
+
+### Generate prisma client for postgres
+```bash
+uv run prisma generate --schema=.\images\infra\database\postgres\schema.prisma
+```
+### Make migrations
+```bash
+uv run prisma migrate dev --schema=.\images\infra\database\postgres\schema.prisma
+```
+
+### mysql
+```bash
+
+```
+### Make migrations
+```bash
+
+```
+
+### mongodb
+```bash
+
+```
+### Make migrations
+```bash
+
+```
+
+As you can see there are relationships between some tables. However, in the implementation I decide to seperate in specific databases for auth and images.
+
 <img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/db_diagram.png" height=500 width=700 alt="database model">
 
 ## Architecture
