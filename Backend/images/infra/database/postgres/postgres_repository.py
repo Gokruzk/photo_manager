@@ -3,7 +3,7 @@ from uuid import UUID
 from typing import List
 from pathlib import Path
 from datetime import datetime
-from images.domain.entities import Image, UploadImage
+from images.infra.web.schemas import Image, UploadImage
 from images.app.ports.image_repository import ImageRepository
 from images.domain.exceptions import ImageNotFoundError, ImageUploadError
 from images.infra.database.postgres.postgres_connection import PrismaConnection
@@ -28,10 +28,10 @@ class PrismaImageRepository(ImageRepository):
             raise ImageNotFoundError(f"Image with id {cod_image} not found")
         return image
 
-    async def upload(self, image: UploadImage, filename: str, content: bytes) -> Image:
+    async def upload(self, upload_image: UploadImage, content: bytes) -> Image:
         try:
             # store image in directory
-            image_path = images_folder / filename
+            image_path = upload_image.image_path
             with open(f"{image_path}", "wb") as f:
                 f.write(content)
 
@@ -39,15 +39,17 @@ class PrismaImageRepository(ImageRepository):
             uploadedAt = int(datetime.now().strftime('%Y%m%d'))
 
             # store image in db
-            await self.conn.prisma.images.create({
-                "cod_ubi": image.cod_ubi,
-                "cod_user": image.cod_user,
-                "image": str(image_path),
-                "uploadedat": uploadedAt
+            image = await self.conn.prisma.images.create({
+                "cod_ubi": int(upload_image.cod_ubi),
+                "cod_user": str(upload_image.cod_user),
+                "image_path": str(image_path),
+                "uploadedat": int(uploadedAt)
             })
 
         except Exception as e:
             raise ImageUploadError(f"Error uploading image: {e}")
+        
+        return image
 
     async def delete(self, cod_image: UUID) -> Image:
         image = await self.find_by_cod(cod_image)
