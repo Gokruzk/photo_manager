@@ -34,8 +34,7 @@ class TokenManager:
     @staticmethod
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()
-        expire = datetime.now(
-        ) + timedelta(minutes=JWTConfig.token_expire())
+        expire = datetime.now().isoformat()
 
         to_encode.update({"exp": expire})
 
