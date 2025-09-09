@@ -66,7 +66,6 @@ uv run prisma generate --schema=.\auth\infra\database\postgres\schema.prisma
 ```bash
 uv run prisma migrate dev --schema=.\images\infra\database\postgres\schema.prisma
 ```
-### Run migrations
 ```bash
 uv run prisma migrate dev --schema=.\auth\infra\database\postgres\schema.prisma
 ```
