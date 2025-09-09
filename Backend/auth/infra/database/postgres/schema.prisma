@@ -1,0 +1,70 @@
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_AUTH_URL")
+}
+
+model Ubication {
+  cod_ubi Int      @id
+  country String   @db.VarChar(100)
+  user    User[]
+
+  @@map("ubication")
+}
+
+model State {
+  cod_state Int    @id
+  state     String @db.VarChar(8)
+  user      User[]
+
+  @@map("users_state")
+}
+
+model Descriptions {
+  cod_description Int          @id
+  description     String       @db.VarChar(8)
+  user_dates      User_Dates[]
+
+  @@map("date_descriptions")
+}
+
+model Dates {
+  cod_date   Int          @id
+  year       Int
+  month      Int
+  day        DateTime
+  user_dates User_Dates[]
+
+  @@map("dates")
+}
+
+model User {
+  cod_user   String       @id @default(uuid()) @db.Uuid
+  cod_ubi    Int
+  cod_state  Int
+  username   String       @unique @db.VarChar(15)
+  email      String       @db.VarChar(50)
+  password   String       @db.VarChar(300)
+  ubication  Ubication    @relation(fields: [cod_ubi], references: [cod_ubi])
+  state      State        @relation(fields: [cod_state], references: [cod_state])
+  user_dates User_Dates[]
+
+  @@map("users")
+}
+
+model User_Dates {
+  cod_date        Int
+  cod_user        String       @db.Uuid
+  cod_description Int
+  date            Dates        @relation(fields: [cod_date], references: [cod_date])
+  user            User         @relation(fields: [cod_user], references: [cod_user])
+  description     Descriptions @relation(fields: [cod_description], references: [cod_description])
+
+  @@id([cod_date, cod_user, cod_description])
+  @@map("users_dates")
+}
