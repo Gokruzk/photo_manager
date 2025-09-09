@@ -4,10 +4,12 @@ from fastapi import FastAPI
 from colorama import Fore, Style
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 
-from images.infra.web import router
 from config.config import ServerConfig
+from images.infra.web import image_router
+from auth.infra.web import auth_router, user_router
 
 home = Path.home()
 images_folder = Path(home, "Images_Photo_Manager")
@@ -59,7 +61,12 @@ def init_app():
 
 app = init_app()
 
-app.include_router(router.router)
+# OAuth schema
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+app.include_router(auth_router.router)
+app.include_router(user_router.router)
+app.include_router(image_router.router)
 
 # mount directory
 app.mount("/images/image", StaticFiles(directory=images_folder), name="images")
