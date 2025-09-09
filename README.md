@@ -2,8 +2,9 @@
 
 ## Backend
 
-REST API for manage users' photos.
+REST API for manage users' photos.   
 Developing this project was a very interesting experience. It made me realize how important it is to have a well-structured project that allows changes and scaling without breaking everything. I also got in touch with testing for the first time, and thanks to this architecture, it was easier to understand how to write them.
+You can check (old_architecture)[https://github.com/Gokruzk/photo_manager/tree/old_architecture] branch and you’ll see how everything was coupled.
 
 ## Installation and Configuration
 
