@@ -2,7 +2,8 @@
 
 ## Backend
 
-REST API for manage users' photos
+REST API for manage users' photos.   
+Developing this project was a very interesting experience. It made me realize how important it is to have a well-structured project that allows changes and scaling without breaking everything. You can check [old_architecture](https://github.com/Gokruzk/photo_manager/tree/old_architecture) branch and you’ll see how everything was coupled. I also got in touch with testing for the first time, and thanks to this architecture, it was easier to understand how to write them.   
 
 ## Installation and Configuration
 
@@ -61,10 +62,18 @@ You can choose between PostgreSQL (Prisma) or MySQL (SQLAlchemy).
 ```bash
 uv run prisma generate --schema=.\images\infra\database\postgres\schema.prisma
 ```
+```bash
+uv run prisma generate --schema=.\auth\infra\database\postgres\schema.prisma
+```
 ### Run migrations
 ```bash
 uv run prisma migrate dev --schema=.\images\infra\database\postgres\schema.prisma
 ```
+### Run migrations
+```bash
+uv run prisma migrate dev --schema=.\auth\infra\database\postgres\schema.prisma
+```
+
 ### MySQL (SQLAlchemy)
 Currently in progress.
 
@@ -75,7 +84,7 @@ As you can see there are relationships between some tables. However, in the impl
 
 ## Architecture
 
-<img src="https://github.com/Gokruzk/photo_manager/blob/auth_hex/Backend/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
+<img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
 
 ## Frontend
 
