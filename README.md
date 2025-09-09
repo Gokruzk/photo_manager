@@ -8,7 +8,7 @@ Developing this project was a very interesting experience. It made me realize ho
 ### 1. Change directory
 
 ```bash
-cd .\backend\
+cd .\src\
 ```
 
 ### 1. Install uv
@@ -77,8 +77,8 @@ Currently in progress.
 ### Entity Relationship Model and Entity Relationship Diagram
 As you can see there are relationships between some tables. However, in the implementation I decide to seperate in specific databases for auth and images.
 
-<img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/db_diagram.png" height=500 width=700 alt="database model">
+<img src="https://github.com/Gokruzk/photo_manager/blob/main/db_diagram.png" height=500 width=700 alt="database model">
 
 ## Architecture
 
-<img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
+<img src="https://github.com/Gokruzk/photo_manager/blob/main/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
