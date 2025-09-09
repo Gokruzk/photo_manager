@@ -7,8 +7,6 @@ Developing this project was a very interesting experience. It made me realize ho
 
 ## Installation and Configuration
 
-This project use [uv](https://docs.astral.sh/uv), a fast Python package and environment manager (alternative to pip + venv/poetry).
-
 ### 1. Change directory
 
 ```bash
@@ -17,11 +15,12 @@ cd .\Backend\
 
 ### 1. Install uv
 
-First, create a virtual environment to manage the project dependencies.
+This project uses [uv](https://docs.astral.sh/uv), a fast Python package and environment manager (alternative to pip + venv/poetry).
 
 ```bash
 pip install uv
 ```
+Create the virtual environment to manage the project dependencies. 
 
 ### 2. Init uv
 
