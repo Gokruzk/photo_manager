@@ -1,7 +1,5 @@
 # Photo Album Manager
 
-## Backend
-
 REST API for manage users' photos.   
 Developing this project was a very interesting experience. It made me realize how important it is to have a well-structured project that allows changes and scaling without breaking everything. You can check [old_architecture](https://github.com/Gokruzk/photo_manager/tree/old_architecture) branch and you’ll see how everything was coupled. I also got in touch with testing for the first time, and thanks to this architecture, it was easier to understand how to write them.   
 
@@ -84,30 +82,3 @@ As you can see there are relationships between some tables. However, in the impl
 ## Architecture
 
 <img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
-
-## Frontend
-
-This is a Next.js project
-
-## Installation and Configuration
-
-### 1. Install dependencies
-
-```bash
-npm install
-```
-
-### 2. Run
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
