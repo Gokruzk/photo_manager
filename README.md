@@ -61,10 +61,18 @@ You can choose between PostgreSQL (Prisma) or MySQL (SQLAlchemy).
 ```bash
 uv run prisma generate --schema=.\images\infra\database\postgres\schema.prisma
 ```
+```bash
+uv run prisma generate --schema=.\auth\infra\database\postgres\schema.prisma
+```
 ### Run migrations
 ```bash
 uv run prisma migrate dev --schema=.\images\infra\database\postgres\schema.prisma
 ```
+### Run migrations
+```bash
+uv run prisma migrate dev --schema=.\auth\infra\database\postgres\schema.prisma
+```
+
 ### MySQL (SQLAlchemy)
 Currently in progress.
 
@@ -75,7 +83,7 @@ As you can see there are relationships between some tables. However, in the impl
 
 ## Architecture
 
-<img src="https://github.com/Gokruzk/photo_manager/blob/auth_hex/Backend/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
+<img src="https://github.com/Gokruzk/photo_manager/blob/main/Backend/hexagonal_architecture.png" height=500 width=700 alt="hexagonal architecture">
 
 ## Frontend
 
