@@ -26,18 +26,32 @@ class DBConfig:
     @staticmethod
     def db() -> str:
         return getenv("DB_TYPE")
-    
+
     @staticmethod
     def mysql_url() -> str:
         return getenv("MYSQL_URL")
-    
+
     @staticmethod
     def mongo_url() -> str:
         return getenv("MONGO_URL")
-    
+
     @staticmethod
     def postgres_url() -> str:
         return getenv("POSTGRES_URL")
+
+
+class JWTConfig:
+    @staticmethod
+    def alogrithm() -> str:
+        return getenv("ALGORITHM") or "HS256"
+
+    @staticmethod
+    def secret_key() -> str:
+        return getenv("SECRET_KEY") or ""
+
+    @staticmethod
+    def token_expire() -> int:
+        return int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 120)
 
 
 class JWTConfig:
