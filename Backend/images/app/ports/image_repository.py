@@ -7,17 +7,17 @@ from images.domain.entities import Image, UploadImage
 
 class ImageRepository(ABC):
     @abstractmethod
-    async def find_by_user(slef, cod_user: UUID) -> List[Image]:
+    async def find_by_user(self, cod_user: UUID) -> List[Image]:
         pass
 
     @abstractmethod
-    async def find_by_cod(slef, cod_image: UUID) -> Image:
+    async def find_by_cod(self, cod_image: UUID) -> Image:
         pass
 
     @abstractmethod
-    async def upload(upload_image: UploadImage, content: bytes) -> Image:
+    async def upload(self, upload_image: UploadImage, content: bytes) -> Image:
         pass
 
     @abstractmethod
-    async def delete(cod_image: UUID) -> Image:
+    async def delete(self, cod_image: UUID) -> Image:
         pass

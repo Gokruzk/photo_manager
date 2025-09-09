@@ -7,6 +7,7 @@ from images.infra.web.dependencies import get_image_repository
 from images.infra.web.schemas import ResponseSchema, UploadImage
 from fastapi import APIRouter, Depends, Path, File, UploadFile, status, Form, HTTPException
 from images.domain.exceptions import ImageDeletedError, ImageNotFoundError, ImageUploadError
+from images.utils.managers import SessionManager
 
 
 router = APIRouter(
@@ -34,7 +35,8 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 )
 async def find_by_user(
     cod_user: str = Path(..., alias="cod_user"),
-    repository=Depends(get_image_repository)
+    repository=Depends(get_image_repository),
+    current_user = Depends(SessionManager.get_current_user)
 ) -> ResponseSchema:
 
     service = ImageService(repository)
@@ -67,7 +69,8 @@ async def upload(
     cod_user: UUID = Form(...),
     cod_ubi: int = Form(...),
     file: UploadFile = File(...),
-    repository=Depends(get_image_repository)
+    repository=Depends(get_image_repository),
+    current_user=Depends(SessionManager.get_current_user)
 ) -> ResponseSchema:
 
     ext = file.filename.split('.')[-1].lower()
@@ -124,7 +127,8 @@ async def upload(
 )
 async def delete(
     cod_image: str = Path(..., alias="cod_image"),
-    repository=Depends(get_image_repository)
+    repository=Depends(get_image_repository),
+    current_user=Depends(SessionManager.get_current_user)
 ) -> None:
 
     service = ImageService(repository)
