@@ -1,3 +1,30 @@
-DB_URL="postgresql://[user]:[password]@[host]:5432/photo_manager"
+# ============================
+# ENVIRONMENT SETTINGS
+# ============================
+
+# Servidor
+PORT=
+ENVIRONMENT=# development | production
+
+DB_TYPE=# postgres | mysql
+# DB
+DB_USER=
+DB_PASSWORD=
+DB_POSTGRES_HOST=
+DB_POSTGRES_PORT=
+DB_MYSQL_HOST=
+DB_MYSQL_PORT=
+DB_NAME_IMAGES=
+DB_NAME_AUTH=
+
+POSTGRES_IMAGES_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_POSTGRES_HOST}:${DB_POSTGRES_PORT}/${DB_NAME_IMAGES}
+POSTGRES_AUTH_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_POSTGRES_HOST}:${DB_POSTGRES_PORT}/${DB_NAME_AUTH}
+
+MYSQL_IMAGES_URL=mysql+aiomysql://${DB_USER}:${DB_PASSWORD}@{DB_MYSQL_HOST}:{DB_MYSQL_PORT}/${DB_NAME_IMAGES}
+MYSQL_AUTH_URL=mysql+aiomysql://${DB_USER}:${DB_PASSWORD}@{DB_MYSQL_HOST}:{DB_MYSQL_PORT}/${DB_NAME_AUTH}
+
+# JWT
 # Generate a key with this command: openssl rand -hex 32
-SECRET_KEY = [key]
+SECRET_KEY=
+ACCESS_TOKEN_EXPIRE_MINUTES=120
+ALGORITHM=HS256
