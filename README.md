@@ -10,7 +10,7 @@ Developing this project was a very interesting experience. It made me realize ho
 ### 1. Change directory
 
 ```bash
-cd .\Backend\
+cd .\backend\
 ```
 
 ### 1. Install uv
