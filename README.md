@@ -2,7 +2,8 @@
 
 ## Backend
 
-REST API for manage users' photos
+REST API for manage users' photos.
+Developing this project was a very interesting experience. It made me realize how important it is to have a well-structured project that allows changes and scaling without breaking everything. I also got in touch with testing for the first time, and thanks to this architecture, it was easier to understand how to write them.
 
 ## Installation and Configuration
 
