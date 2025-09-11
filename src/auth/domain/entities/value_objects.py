@@ -59,30 +59,6 @@ class DateCod:
 
 
 @dataclass(frozen=True)
-class YearValue:
-    value: int
-
-    def __post_init__(self):
-        if not (2000 <= self.value <= 2100):
-            raise ValueError("YearValue must be between 2000 and 2100")
-
-    def __str__(self) -> str:
-        return str(self.value)
-
-
-@dataclass(frozen=True)
-class MonthValue:
-    value: int
-
-    def __post_init__(self):
-        if not (1 <= self.value <= 12):
-            raise ValueError("MonthValue must be between 1 and 12")
-
-    def __str__(self) -> str:
-        return str(self.value)
-
-
-@dataclass(frozen=True)
 class DateCod:
     value: int
 
@@ -93,13 +69,15 @@ class DateCod:
     def __str__(self) -> str:
         return str(self.value)
 
+
 @dataclass(frozen=True)
 class DateDescription:
     value: str
 
     def __post_init__(self):
         if not (1 <= len(self.value) <= 8):
-            raise ValueError("The date description length must be between 1 and 8")
+            raise ValueError(
+                "The date description length must be between 1 and 8")
 
     def __str__(self) -> str:
         return self.value

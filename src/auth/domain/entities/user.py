@@ -1,7 +1,7 @@
 from datetime import date
 from dataclasses import dataclass
 
-from auth.domain.entities.value_objects import CodState, DateCod, DateDescription, MonthValue, UbicationCod, UserCod, Username, YearValue
+from auth.domain.entities.value_objects import CodState, DateCod, DateDescription, UbicationCod, UserCod, Username
 
 
 @dataclass(frozen=True)
@@ -13,8 +13,6 @@ class State:
 @dataclass(frozen=True)
 class Dates:
     cod_date: DateCod
-    year: YearValue
-    month: MonthValue
     day: date
 
 

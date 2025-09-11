@@ -1,7 +1,7 @@
 from datetime import date
 from dataclasses import dataclass
 
-from images.domain.value_objects import CountryName, DateCod, ImageCod, MonthValue, UbicationCod, UserCod, YearValue
+from .value_objects import CountryName, DateCod, ImageCod, UbicationCod, UserCod
 
 
 @dataclass(frozen=True)
@@ -13,8 +13,6 @@ class Ubication:
 @dataclass(frozen=True)
 class Dates:
     cod_date: DateCod
-    year: YearValue
-    month: MonthValue
     day: date
 
 
@@ -28,4 +26,4 @@ class UploadImage:
 @dataclass(frozen=True)
 class Image(UploadImage):
     cod_image:  ImageCod
-    uploadedat: DateCod
+    uploaded_at: DateCod
