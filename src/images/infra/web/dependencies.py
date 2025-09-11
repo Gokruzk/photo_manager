@@ -1,6 +1,6 @@
 from config.config import DBConfig
 from images.app.ports.image_repository import ImageRepository
-from images.infra.database.postgres.postgres_connection import PrismaConnection
+from images.infra.database.postgres.prisma_connection import PrismaConnection
 from images.infra.database.postgres.postgres_repository import PrismaImageRepository
 
 
@@ -24,7 +24,8 @@ async def get_image_repository() -> ImageRepository:
 
     if db_type == "postgres":
         conn = await get_postgres_connection()
-        return PrismaImageRepository(conn)
+        repo = PrismaImageRepository(conn)
+        return repo
     elif db_type == "mysql":
         # Implementa MySQL aquí
         pass
