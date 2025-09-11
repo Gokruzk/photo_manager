@@ -2,6 +2,7 @@ generator client {
   provider             = "prisma-client-py"
   interface            = "asyncio"
   recursive_type_depth = 5
+  output = "./generated/auth_client"
 }
 
 datasource db {
@@ -35,8 +36,6 @@ model Descriptions {
 
 model Dates {
   cod_date   Int          @id
-  year       Int
-  month      Int
   day        DateTime
   user_dates User_Dates[]
 
