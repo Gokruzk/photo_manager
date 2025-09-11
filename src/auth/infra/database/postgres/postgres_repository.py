@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 
 from auth.infra.factories.user_factory import UserFactory
-from auth.infra.database.postgres.postgres_connection import PrismaConnection
+from auth.infra.database.postgres.prisma_connection import PrismaConnection
 from auth.domain.entities.exceptions import AuthLoginError, AuthUserNotFoundError
 from auth.infra.web.schemas import AuthenticatedUser, RegisterUser, User, UserRetrieve
 
