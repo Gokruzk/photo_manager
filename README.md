@@ -57,17 +57,17 @@ You can choose between PostgreSQL (Prisma) or MySQL (SQLAlchemy).
 
 ### Generate prisma client for postgres
 ```bash
-uv run prisma generate --schema=.\images\infra\database\postgres\schema.prisma
+uv run prisma generate --schema=.\images\infra\database\postgres\images.prisma
 ```
 ```bash
-uv run prisma generate --schema=.\auth\infra\database\postgres\schema.prisma
+uv run prisma generate --schema=.\auth\infra\database\postgres\auth.prisma
 ```
 ### Run migrations
 ```bash
-uv run prisma migrate dev --schema=.\images\infra\database\postgres\schema.prisma
+uv run prisma migrate dev --schema=.\images\infra\database\postgres\images.prisma
 ```
 ```bash
-uv run prisma migrate dev --schema=.\auth\infra\database\postgres\schema.prisma
+uv run prisma migrate dev --schema=.\auth\infra\database\postgres\auth.prisma
 ```
 
 ### MySQL (SQLAlchemy)
