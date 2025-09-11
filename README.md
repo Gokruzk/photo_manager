@@ -1,6 +1,6 @@
 # Photo Album Manager
 
-REST API for manage users' photos.   
+This is a photo managemenr REST API with OAuth2 authentication, enabling secure user access, photo upload, and retrieval.   
 Developing this project was a very interesting experience. It made me realize how important it is to have a well-structured project that allows changes and scaling without breaking everything. You can check [old_architecture](https://github.com/Gokruzk/photo_manager/tree/old_architecture) branch and you’ll see how everything was coupled. I also got in touch with testing for the first time, and thanks to this architecture, it was easier to understand how to write them.   
 
 ## Installation and Configuration
