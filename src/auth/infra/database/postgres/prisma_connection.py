@@ -1,9 +1,9 @@
-from prisma import Prisma
+from .generated.auth_client import Prisma as PrismaAuth
 
 
 class PrismaConnection():
     def __init__(self):
-        self.prisma = Prisma()
+        self.prisma = PrismaAuth()
 
     async def connect(self):
         await self.prisma.connect()

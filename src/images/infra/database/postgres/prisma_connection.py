@@ -1,9 +1,9 @@
-from prisma import Prisma
+from .generated.images_client import Prisma as PrismaImages
 
 
 class PrismaConnection():
     def __init__(self):
-        self.prisma = Prisma()
+        self.prisma = PrismaImages()
 
     async def connect(self):
         await self.prisma.connect()
