@@ -9,14 +9,10 @@ BEGIN
 		WHILE Fecha < FechaFinal LOOP
 			INSERT INTO dates (
 			cod_date,
-      		"year",
-      		"month",
       		"day"
 		 	)
 			VALUES(
 				TO_CHAR(Fecha,'YYYYMMDD')::integer,
-      			EXTRACT(YEAR FROM Fecha)::integer,
-      			EXTRACT(MONTH FROM Fecha)::integer,
       			Fecha
 		 	);
 			Fecha := Fecha + INTERVAL '1 day';
