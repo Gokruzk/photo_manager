@@ -1,5 +1,5 @@
 from auth.app.ports.user_repository import UserRepository
-from auth.infra.database.postgres.postgres_connection import PrismaConnection
+from auth.infra.database.postgres.prisma_connection import PrismaConnection
 from auth.infra.database.postgres.postgres_repository import PrismaUserRepository
 from config.config import DBConfig
 

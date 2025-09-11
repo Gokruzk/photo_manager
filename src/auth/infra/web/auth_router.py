@@ -1,7 +1,7 @@
 import logging
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import APIRouter, Depends, Path, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException
 
 from auth.utils.managers import TokenManager
 from auth.infra.web.schemas import RegisterUser, Token
