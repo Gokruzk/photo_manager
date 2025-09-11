@@ -13,8 +13,6 @@ class Ubication(BaseModel):
 
 class Dates(BaseModel):
     cod_date: int
-    year: int
-    month: int
     day: date
 
 
@@ -26,7 +24,7 @@ class UploadImage(BaseModel):
 
 class Image(UploadImage):
     cod_image:  UUID
-    uploadedat: int
+    uploaded_at: int
 
 
 class ResponseSchema(BaseModel):
