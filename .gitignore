@@ -1,3 +1,5 @@
+**/generated
+
 .pyc
 .xml
 env
