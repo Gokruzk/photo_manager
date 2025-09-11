@@ -1,13 +1,11 @@
-import jwt
-from datetime import datetime, timedelta
+from jose import jwt, ExpiredSignatureError, JWTError
+from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 
-from auth.app.use_cases.user_service import UserService
-from auth.domain.entities.exceptions import AuthUserNotFoundError
-from auth.infra.web.dependencies import get_user_repository
-from auth.infra.web.schemas import CurrentUser, ResponseSchema, TokenData
+
+from auth.infra.web.schemas import ResponseSchema, TokenData
 from config.config import JWTConfig
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -34,16 +32,17 @@ class TokenManager:
     @staticmethod
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()
-        expire = datetime.now(
-        ) + timedelta(minutes=JWTConfig.token_expire())
 
-        to_encode.update({"exp": expire})
+        expire = datetime.now(tz=timezone.utc) + \
+            timedelta(minutes=JWTConfig.token_expire())
+        to_encode.update({"exp": int(expire.timestamp())})
 
         encoded_jwt = jwt.encode(
             to_encode,
             JWTConfig.secret_key(),
             algorithm=JWTConfig.alogrithm()
         )
+
         return encoded_jwt
 
     @staticmethod
@@ -54,24 +53,30 @@ class TokenManager:
                 JWTConfig.secret_key(),
                 algorithms=[JWTConfig.alogrithm()]
             )
-        except jwt.ExpiredSignatureError:
+        except ExpiredSignatureError:
             return ResponseSchema(detail="Token expired")
-        except jwt.InvalidTokenError:
+        except JWTError:
             return ResponseSchema(detail="Invalid token")
 
     @classmethod
     def verify_token(cls, token: str = Depends(oauth2_scheme)) -> TokenData:
         try:
             payload = cls.decode_token(token)
+
+            if isinstance(payload, ResponseSchema):
+                # decode_token failed
+                raise ValueError(payload.detail)
+
             username: str = payload.get("username")
             cod_user: str = payload.get("cod_user")
             exp: int = payload.get("exp")
 
-            if exp < datetime.now():
-                return ResponseSchema.error(detail="Token expired")
+            if exp < int(datetime.now(tz=timezone.utc).timestamp()):
+                return ResponseSchema(detail="Token expired")
 
             return TokenData(username=username, cod_user=cod_user)
         except Exception as e:
+            print(e)
             return ResponseSchema(detail="Unauthorized")
 
 
