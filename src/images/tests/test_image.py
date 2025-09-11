@@ -26,7 +26,7 @@ class TestImageService:
             cod_ubi=UbicationCod(value=1),
             image_path="/image/path",
             cod_user=UserCod(value=cod_user),
-            uploadedat=DateCod(value=20010101)
+            uploaded_at=DateCod(value=20010101)
         )
 
         self.mock_image_repository.find_by_cod = AsyncMock(
@@ -63,7 +63,7 @@ class TestImageService:
             cod_ubi=UbicationCod(value=1),
             image_path="/image/path",
             cod_user=UserCod(value=cod_user),
-            uploadedat=DateCod(value=20010101)
+            uploaded_at=DateCod(value=20010101)
         )
 
         self.mock_image_repository.upload = AsyncMock(
@@ -105,7 +105,7 @@ class TestImageService:
             cod_ubi=UbicationCod(value=1),
             image_path="/image/path",
             cod_user=UserCod(value=cod_user),
-            uploadedat=DateCod(value=20010101)
+            uploaded_at=DateCod(value=20010101)
         )
 
         self.mock_image_repository.delete = AsyncMock(
@@ -143,7 +143,7 @@ class TestImageService:
             cod_ubi=UbicationCod(value=1),
             image_path="/image/path",
             cod_user=UserCod(value=cod_user),
-            uploadedat=DateCod(value=20010101)
+            uploaded_at=DateCod(value=20010101)
         )
 
         self.mock_image_repository.delete = AsyncMock(
