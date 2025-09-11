@@ -32,10 +32,6 @@ class DBConfig:
         return getenv("MYSQL_URL")
 
     @staticmethod
-    def mongo_url() -> str:
-        return getenv("MONGO_URL")
-
-    @staticmethod
     def postgres_url() -> str:
         return getenv("POSTGRES_URL")
 
