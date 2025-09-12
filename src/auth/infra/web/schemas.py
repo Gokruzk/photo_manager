@@ -1,7 +1,10 @@
+from dataclasses import dataclass
 from datetime import date
 from typing import Optional, TypeVar
 from uuid import UUID
 from pydantic import BaseModel
+
+from auth.app.ports import AuthRepository, UserRepository
 
 T = TypeVar("T")
 
@@ -21,6 +24,13 @@ class User(CurrentUser):
 
 
 class RegisterUser(User):
+    cod_ubi: int
+    cod_state: int
+    email: str
+    birthdate: date
+
+
+class UpdateUser(User):
     cod_ubi: int
     cod_state: int
     email: str
@@ -51,6 +61,12 @@ class Token(Base):
 class TokenData(Base):
     username: str
     cod_user: UUID
+
+
+@dataclass
+class Repositories:
+    user_repo: UserRepository
+    auth_repo: AuthRepository
 
 
 class ResponseSchema(Base):
