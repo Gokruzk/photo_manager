@@ -25,6 +25,7 @@ class PrismaAuthRepository:
         return user
 
     async def register(self, user_register: RegisterUser) -> AuthenticatedUser:
+        from auth.utils.managers import PasswordManager
 
         user = await self.conn.prisma.user.create(
             data={
@@ -32,6 +33,7 @@ class PrismaAuthRepository:
                 "cod_state": int(user_register.cod_state),
                 "username": str(user_register.username),
                 "email": str(user_register.email),
+                "password": PasswordManager.hash_password(user_register.password),
             }
         )
 
