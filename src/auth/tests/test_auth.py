@@ -55,7 +55,7 @@ class TestAuthService:
         self.mock_auth_repository.login = AsyncMock(return_value=None)
 
         # Act & Assert
-        with pytest.raises(AuthLoginError,  match=f"Unexpected error siging the user {user.username}"):
+        with pytest.raises(AuthLoginError,  match=f"Unexpected error singing the user {user.username}"):
             await self.service.login(user)
 
     @pytest.mark.asyncio
@@ -77,5 +77,5 @@ class TestAuthService:
         self.mock_auth_repository.login = AsyncMock(return_value=None)
 
         # Act & Assert
-        with pytest.raises(AuthLoginError,  match=f"Unexpected error siging the user {user.username}"):
+        with pytest.raises(AuthLoginError,  match=f"Unexpected error singing the user {user.username}"):
             await self.service.login(user)
