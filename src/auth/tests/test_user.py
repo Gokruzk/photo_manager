@@ -25,15 +25,13 @@ class TestUserService:
             cod_ubi=UbicationCod(1),
             cod_state=CodState(1),
             username=Username("x"),
-            email="x@x.com",
-            birthdate=datetime.now(),
+            email="x@x.com"
         ), UserRetrieve(
             cod_user=UserCod(uuid4()),
             cod_ubi=UbicationCod(1),
             cod_state=CodState(1),
             username=Username("x"),
-            email="x@x.com",
-            birthdate=datetime.now(),
+            email="x@x.com"
         )]
 
         self.mock_user_repository.find_all = AsyncMock(
@@ -61,12 +59,11 @@ class TestUserService:
         username = "gokruzk"
 
         expected_user = UserRetrieve(
-            cod_user=UserCod(uuid4()),
-            cod_ubi=UbicationCod(1),
-            cod_state=CodState(1),
-            username=Username(username),
-            email="x@x.com",
-            birthdate=datetime.now(),
+            cod_user=UserCod(value=uuid4()),
+            cod_ubi=UbicationCod(value=1),
+            cod_state=CodState(value=1),
+            username=Username(value=username),
+            email=str("x@x.com")
         )
 
         self.mock_user_repository.find_by_username = AsyncMock(
@@ -103,8 +100,7 @@ class TestUserService:
             cod_ubi=UbicationCod(1),
             cod_state=CodState(1),
             email="new@example.com",
-            password="secret123",
-            birthdate=datetime.now(),
+            password="secret123"
         )
 
         # expected user after update
@@ -113,8 +109,7 @@ class TestUserService:
             cod_ubi=UbicationCod(1),
             cod_state=CodState(1),
             username=Username(username),
-            email="new@example.com",
-            birthdate=datetime.now(),
+            email="new@example.com"
         )
 
         # check if exist
@@ -145,8 +140,7 @@ class TestUserService:
             cod_ubi=UbicationCod(1),
             cod_state=CodState(1),
             username=Username(username),
-            email="new@example.com",
-            birthdate=datetime.now(),
+            email="new@example.com"
         )
 
         # check if exist
