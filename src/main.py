@@ -7,9 +7,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 
+from auth.infra.web.controllers import auth_router
 from config.config import ServerConfig
 from images.infra.web import image_router
-from auth.infra.web import auth_router, user_router
+from auth.infra.web.controllers import user_router
 
 home = Path.home()
 images_folder = Path(home, "Images_Photo_Manager")
