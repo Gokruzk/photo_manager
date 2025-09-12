@@ -4,8 +4,12 @@ from typing import List
 from pathlib import Path
 from datetime import datetime
 from images.infra.web.schemas import Image, UploadImage
-from images.infra.database.postgres.prisma_connection import PrismaConnection
-from images.domain.exceptions import ImageDeletedError, ImageNotFoundError, ImageUploadError
+from images.infra.database.postgres.prisma_connection import PrismaManager
+from images.domain.exceptions import (
+    ImageDeletedError,
+    ImageNotFoundError,
+    ImageUploadError,
+)
 
 # directory for images
 home = Path.home()
@@ -13,7 +17,7 @@ images_folder = Path(home, "Images_Photo_Manager")
 
 
 class PrismaImageRepository:
-    def __init__(self, conn: PrismaConnection):
+    def __init__(self, conn: PrismaManager):
         self.conn = conn
 
     async def find_by_user(self, cod_user: UUID) -> List[Image]:
@@ -25,8 +29,7 @@ class PrismaImageRepository:
         return images
 
     async def find_by_cod(self, cod_image: UUID) -> Image:
-        image = await self.conn.prisma.images.find_first(
-            where={"cod_image": cod_image})
+        image = await self.conn.prisma.images.find_first(where={"cod_image": cod_image})
 
         if not image:
             raise ImageNotFoundError(f"Image with id {cod_image} not found")
@@ -44,14 +47,16 @@ class PrismaImageRepository:
                 f.write(content)
 
             # convert date to int YYYYMMDD
-            uploaded_at = int(datetime.now().strftime('%Y%m%d'))
+            uploaded_at = int(datetime.now().strftime("%Y%m%d"))
 
-            image = await self.conn.prisma.images.create({
-                "cod_ubi": int(upload_image.cod_ubi),
-                "cod_user": str(upload_image.cod_user),
-                "image_path": str(image_path),
-                "uploaded_at": uploaded_at
-            })
+            image = await self.conn.prisma.images.create(
+                {
+                    "cod_ubi": int(upload_image.cod_ubi),
+                    "cod_user": str(upload_image.cod_user),
+                    "image_path": str(image_path),
+                    "uploaded_at": uploaded_at,
+                }
+            )
 
         except OSError as e:
             raise ImageUploadError(f"Filesystem error uploading image: {e}")

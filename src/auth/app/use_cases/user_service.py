@@ -4,7 +4,11 @@ from auth.domain.entities.auth import RegisterUser
 from auth.domain.entities.user import UserRetrieve
 from auth.infra.factories.user_factory import UserFactory
 from auth.app.ports.user_repository import UserRepository
-from auth.domain.exceptions.exceptions import AuthUserDeleteError, AuthUserNotFoundError, AuthUserUpdateError
+from auth.domain.exceptions.exceptions import (
+    AuthUserDeleteError,
+    AuthUserNotFoundError,
+    AuthUserUpdateError,
+)
 
 
 class UserService:
@@ -25,8 +29,7 @@ class UserService:
         if not user:
             raise AuthUserNotFoundError(f"The user {username} does not exist")
 
-        user_retrieve = UserFactory.create_retrieved_user(user)
-        return user_retrieve
+        return user
 
     async def update(self, data: RegisterUser, username: str) -> UserRetrieve:
 
@@ -40,8 +43,7 @@ class UserService:
         if not user:
             raise AuthUserUpdateError(f"Error updating the user {username}")
 
-        user_retrieve = UserFactory.create_retrieved_user(user)
-        return user_retrieve
+        return user
 
     async def delete(self, username: str) -> UserRetrieve:
 

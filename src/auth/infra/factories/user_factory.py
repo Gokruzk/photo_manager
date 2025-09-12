@@ -1,3 +1,9 @@
+from auth.domain.value_objects.value_objects import (
+    CodState,
+    UbicationCod,
+    UserCod,
+    Username,
+)
 from auth.infra.web.schemas import AuthenticatedUser, RegisterUser, UserRetrieve
 
 
@@ -5,12 +11,13 @@ class UserFactory:
     @staticmethod
     def create(data: RegisterUser):
         from auth.utils.managers import PasswordManager
+
         return {
             "cod_ubi": int(data.cod_ubi),
             "cod_state": int(data.cod_state),
             "username": str(data.username),
             "email": str(data.email),
-            "password": PasswordManager.hash_password(data.password)
+            "password": PasswordManager.hash_password(data.password),
         }
 
     @staticmethod
