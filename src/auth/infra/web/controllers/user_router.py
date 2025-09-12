@@ -5,7 +5,7 @@ from auth.utils.managers import SessionManager
 from auth.app.use_cases.user_service import UserService
 from auth.infra.web.dependencies import get_user_repository
 from auth.infra.web.schemas import CurrentUser, RegisterUser, ResponseSchema, TokenData
-from auth.domain.entities.exceptions import AuthUserDeleteError, AuthUserNotFoundError, AuthUserUpdateError
+from auth.domain.exceptions.exceptions import AuthUserDeleteError, AuthUserNotFoundError, AuthUserUpdateError
 
 
 router = APIRouter(

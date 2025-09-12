@@ -4,7 +4,7 @@ from auth.domain.entities.auth import RegisterUser
 from auth.domain.entities.user import UserRetrieve
 from auth.infra.factories.user_factory import UserFactory
 from auth.app.ports.user_repository import UserRepository
-from auth.domain.entities.exceptions import AuthUserDeleteError, AuthUserNotFoundError, AuthUserUpdateError
+from auth.domain.exceptions.exceptions import AuthUserDeleteError, AuthUserNotFoundError, AuthUserUpdateError
 
 
 class UserService:

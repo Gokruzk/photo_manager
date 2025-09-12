@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 
 from auth.app.use_cases.user_service import UserService
-from auth.domain.entities.exceptions import AuthUserNotFoundError
+from auth.domain.exceptions.exceptions import AuthUserNotFoundError
 from auth.infra.web.dependencies import get_user_repository
 from auth.infra.web.schemas import CurrentUser, ResponseSchema, TokenData
 from config.config import JWTConfig

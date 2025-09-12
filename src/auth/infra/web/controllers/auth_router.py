@@ -7,7 +7,7 @@ from auth.utils.managers import TokenManager
 from auth.infra.web.schemas import RegisterUser, Token
 from auth.app.use_cases.auth_service import AuthService
 from auth.infra.web.dependencies import get_user_repository
-from auth.domain.entities.exceptions import AuthLoginError, AuthRegisterError, AuthUserNotFoundError
+from auth.domain.exceptions.exceptions import AuthLoginError, AuthRegisterError, AuthUserNotFoundError
 
 
 router = APIRouter(

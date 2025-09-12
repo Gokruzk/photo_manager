@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock
 from auth.domain.entities.user import UserRetrieve
 from auth.domain.entities.auth import RegisterUser
 from auth.app.use_cases.user_service import UserService
-from auth.domain.entities.exceptions import AuthUserNotFoundError
-from auth.domain.entities.value_objects import CodState, UbicationCod, UserCod, Username
+from auth.domain.exceptions.exceptions import AuthUserNotFoundError
+from auth.domain.value_objects.value_objects import CodState, UbicationCod, UserCod, Username
 
 
 @pytest.mark.usefixtures("mock_user_repository")

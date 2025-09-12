@@ -1,7 +1,7 @@
 from datetime import date
 from dataclasses import dataclass
 
-from auth.domain.entities.value_objects import CodState, DateCod, DateDescription, UbicationCod, UserCod, Username
+from auth.domain.value_objects.value_objects import CodState, DateCod, DateDescription, UbicationCod, UserCod, Username
 
 
 @dataclass(frozen=True)

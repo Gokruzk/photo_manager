@@ -1,7 +1,7 @@
 from auth.app.ports.auth_repository import AuthRepository
 from auth.app.ports.user_repository import UserRepository
 from auth.domain.entities.auth import AuthenticatedUser, RegisterUser, User
-from auth.domain.entities.exceptions import AuthLoginError, AuthRegisterError, AuthUserNotFoundError
+from auth.domain.exceptions.exceptions import AuthLoginError, AuthRegisterError, AuthUserNotFoundError
 
 
 class AuthService:
