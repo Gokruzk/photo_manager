@@ -28,8 +28,7 @@ class TestAuthService:
             cod_ubi=UbicationCod(1),
             cod_state=CodState(1),
             username=Username("x"),
-            email="x@x.com",
-            birthdate=datetime.now()
+            email="x@x.com"
         )
 
         self.mock_user_repository.find_by_username = AsyncMock(
@@ -70,8 +69,7 @@ class TestAuthService:
             cod_ubi=UbicationCod(1),
             cod_state=CodState(1),
             username=Username("x"),
-            email="x@x.com",
-            birthdate=datetime.now()
+            email="x@x.com"
         )
 
         self.mock_user_repository.find_by_username = AsyncMock(return_value=expected_user)
