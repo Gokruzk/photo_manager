@@ -14,9 +14,14 @@ class SingletonMeta(type):
 class PrismaManager(metaclass=SingletonMeta):
     def __init__(self):
         self.prisma = PrismaAuth()
+        self._connected = False
 
     async def connect(self):
-        await self.prisma.connect()
+        if not self._connected:
+            await self.prisma.connect()
+            self._connected = True
 
     async def disconnect(self):
-        await self.prisma.disconnect()
+        if self._connected:
+            await self.prisma.disconnect()
+            self._connected = False
