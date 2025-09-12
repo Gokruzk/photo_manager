@@ -1,46 +1,31 @@
-from jose import jwt, ExpiredSignatureError, JWTError
-from datetime import datetime, timedelta, timezone
-from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from datetime import datetime, timedelta, timezone
+from jose import jwt, ExpiredSignatureError, JWTError
 
 
 from auth.infra.web.schemas import ResponseSchema, TokenData
 from config.config import JWTConfig
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-
-class PasswordManager:
-    """
-    Class to manage passwords
-    """
-    @staticmethod
-    def verify_password(plain_password: str, hashed_password: str) -> bool:
-        return pwd_context.verify(plain_password, hashed_password)
-
-    @staticmethod
-    def hash_password(password: str) -> str:
-        return pwd_context.hash(password)
 
 
 class TokenManager:
     """
     Class to manage tokens
     """
+
     @staticmethod
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()
 
-        expire = datetime.now(tz=timezone.utc) + \
-            timedelta(minutes=JWTConfig.token_expire())
+        expire = datetime.now(tz=timezone.utc) + timedelta(
+            minutes=JWTConfig.token_expire()
+        )
         to_encode.update({"exp": int(expire.timestamp())})
 
         encoded_jwt = jwt.encode(
-            to_encode,
-            JWTConfig.secret_key(),
-            algorithm=JWTConfig.alogrithm()
+            to_encode, JWTConfig.secret_key(), algorithm=JWTConfig.alogrithm()
         )
 
         return encoded_jwt
@@ -49,9 +34,7 @@ class TokenManager:
     def decode_token(token: str) -> dict:
         try:
             return jwt.decode(
-                token,
-                JWTConfig.secret_key(),
-                algorithms=[JWTConfig.alogrithm()]
+                token, JWTConfig.secret_key(), algorithms=[JWTConfig.alogrithm()]
             )
         except ExpiredSignatureError:
             return ResponseSchema(detail="Token expired")
@@ -84,6 +67,7 @@ class SessionManager:
     """
     Class to manage sessions and roles
     """
+
     @staticmethod
     async def get_current_user(
         token: str = Depends(oauth2_scheme),

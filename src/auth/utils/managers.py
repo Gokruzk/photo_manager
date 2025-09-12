@@ -1,14 +1,13 @@
 from fastapi import Depends
-from jose import jwt, ExpiredSignatureError, JWTError
-from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
+from datetime import datetime, timedelta, timezone
+from jose import jwt, ExpiredSignatureError, JWTError
 
-from auth.app.use_cases.user_service import UserService
-from auth.domain.exceptions.exceptions import AuthUserNotFoundError
-from auth.infra.web.dependencies import get_user_repository
-from auth.infra.web.schemas import CurrentUser, ResponseSchema, TokenData
 from config.config import JWTConfig
+from auth.infra.web.dependencies import get_user_repository
+from auth.domain.exceptions.exceptions import AuthUserNotFoundError
+from auth.infra.web.schemas import CurrentUser, Repositories, ResponseSchema, TokenData
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -18,6 +17,7 @@ class PasswordManager:
     """
     Class to manage passwords
     """
+
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
         return pwd_context.verify(plain_password, hashed_password)
@@ -31,17 +31,18 @@ class TokenManager:
     """
     Class to manage tokens
     """
+
     @staticmethod
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()
-        
-        expire = datetime.now(tz=timezone.utc) + timedelta(minutes=JWTConfig.token_expire())
+
+        expire = datetime.now(tz=timezone.utc) + timedelta(
+            minutes=JWTConfig.token_expire()
+        )
         to_encode.update({"exp": int(expire.timestamp())})
 
         encoded_jwt = jwt.encode(
-            to_encode,
-            JWTConfig.secret_key(),
-            algorithm=JWTConfig.alogrithm()
+            to_encode, JWTConfig.secret_key(), algorithm=JWTConfig.alogrithm()
         )
 
         return encoded_jwt
@@ -50,9 +51,7 @@ class TokenManager:
     def decode_token(token: str) -> dict:
         try:
             return jwt.decode(
-                token,
-                JWTConfig.secret_key(),
-                algorithms=[JWTConfig.alogrithm()]
+                token, JWTConfig.secret_key(), algorithms=[JWTConfig.alogrithm()]
             )
         except ExpiredSignatureError:
             return ResponseSchema(detail="Token expired")
@@ -63,11 +62,11 @@ class TokenManager:
     def verify_token(cls, token: str = Depends(oauth2_scheme)) -> TokenData:
         try:
             payload = cls.decode_token(token)
-            
+
             if isinstance(payload, ResponseSchema):
                 # decode_token failed
                 raise ValueError(payload.detail)
-        
+
             username: str = payload.get("username")
             cod_user: str = payload.get("cod_user")
             exp: int = payload.get("exp")
@@ -85,14 +84,15 @@ class SessionManager:
     """
     Class to manage sessions and roles
     """
+
     @staticmethod
     async def get_current_user(
         token: str = Depends(oauth2_scheme),
-        user_service: UserService = Depends(get_user_repository)
+        repositories: Repositories = Depends(get_user_repository),
     ) -> CurrentUser:
 
         token_data = TokenManager.verify_token(token)
-        user = await user_service.find_by_username(token_data.username)
+        user = await repositories.user_repo.find_by_username(token_data.username)
 
         if not user:
             raise AuthUserNotFoundError("User not found")
