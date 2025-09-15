@@ -14,35 +14,51 @@ class AuthService:
         self.user_repo = user_repo
 
     async def login(self, user_auth: User) -> AuthenticatedUser:
+        try:
+            user_found = await self.user_repo.find_by_username(user_auth.username)
 
-        user_found = await self.user_repo.find_by_username(user_auth.username)
+            if not user_found:
+                raise AuthUserNotFoundError(
+                    f"The user {user_auth.username} does not exist"
+                )
 
-        if not user_found:
-            raise AuthUserNotFoundError(
-                f"The user {user_auth["username"]} does not exist"
-            )
+            user = await self.auth_repo.login(user_auth)
 
-        user = await self.auth_repo.login(user_auth)
+            if not user:
+                raise AuthLoginError(
+                    f"Unexpected error signing the user {user_auth.username}"
+                )
 
-        if not user:
+            return user
+
+        except (AuthUserNotFoundError, AuthLoginError):
+            raise
+        except Exception as e:
             raise AuthLoginError(
-                f"Unexpected error singing the user {user_auth.username}"
-            )
-
-        return user
+                f"Unexpected error signing the user {user_auth.username}"
+            ) from e
 
     async def register(self, user_register: RegisterUser) -> AuthenticatedUser:
+        try:
+            user_found = await self.user_repo.find_by_username(user_register.username)
 
-        user_found = await self.user_repo.find_by_username(user_register.username)
+            if user_found:
+                raise AuthRegisterError(
+                    f"The user {user_register.username} already exists"
+                )
 
-        if user_found:
-            raise AuthRegisterError(f"The user {user_register.username} already exists")
+            user = await self.auth_repo.register(user_register)
 
-        user = await self.auth_repo.register(user_register)
+            if not user:
+                raise AuthRegisterError(
+                    f"Unexpected error registering the user {user_register.username}"
+                )
 
-        if not user:
+            return user
+
+        except AuthRegisterError:
+            raise
+        except Exception as e:
             raise AuthRegisterError(
                 f"Unexpected error registering the user {user_register.username}"
-            )
-
-        return user
+            ) from e

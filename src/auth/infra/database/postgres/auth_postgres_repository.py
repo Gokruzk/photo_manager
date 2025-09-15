@@ -2,7 +2,11 @@ from datetime import datetime
 
 from auth.infra.web.schemas import AuthenticatedUser, RegisterUser, User
 from auth.infra.database.postgres.prisma_connection import PrismaManager
-from auth.domain.exceptions import AuthLoginError, AuthUserNotFoundError
+from auth.domain.exceptions import (
+    AuthLoginError,
+    AuthUserNotFoundError,
+    AuthRegisterError,
+)
 
 
 class PrismaAuthRepository:
@@ -12,12 +16,14 @@ class PrismaAuthRepository:
     async def login(self, user_auth: User) -> AuthenticatedUser:
         from auth.utils.managers import PasswordManager
 
-        user = await self.conn.prisma.user.find_first_or_raise(
-            where={"username": user_auth.username}, include={"user_dates": True}
-        )
-
-        if not user:
-            raise AuthUserNotFoundError(f"The user {user_auth.username} does not exist")
+        try:
+            user = await self.conn.prisma.user.find_first_or_raise(
+                where={"username": user_auth.username}, include={"user_dates": True}
+            )
+        except Exception as e:
+            raise AuthUserNotFoundError(
+                f"The user {user_auth.username} does not exist"
+            ) from e
 
         if not PasswordManager.verify_password(user_auth.password, user.password):
             raise AuthLoginError("Password incorrect")
@@ -27,36 +33,49 @@ class PrismaAuthRepository:
     async def register(self, user_register: RegisterUser) -> AuthenticatedUser:
         from auth.utils.managers import PasswordManager
 
-        user = await self.conn.prisma.user.create(
-            data={
-                "cod_ubi": int(user_register.cod_ubi),
-                "cod_state": int(user_register.cod_state),
-                "username": str(user_register.username),
-                "email": str(user_register.email),
-                "password": PasswordManager.hash_password(user_register.password),
-            }
-        )
+        try:
+            user = await self.conn.prisma.user.create(
+                data={
+                    "cod_ubi": int(user_register.cod_ubi),
+                    "cod_state": int(user_register.cod_state),
+                    "username": str(user_register.username),
+                    "email": str(user_register.email),
+                    "password": PasswordManager.hash_password(user_register.password),
+                }
+            )
+        except Exception as e:
+            raise AuthRegisterError(
+                f"Unexpected error registering the user {user_register.username}"
+            ) from e
 
-        # format date to YYYYMMDD
-        formatted_date = user_register.birthdate.strftime("%Y%m%d")
-        # parse to int
-        birthday = int(formatted_date)
-        # get current date
-        formatted_date = datetime.now().strftime("%Y%m%d")
-        # parse to int
-        created_date = int(formatted_date)
+        # dates: birtday and created/updated timestamps
+        birthday = int(user_register.birthdate.strftime("%Y%m%d"))
+        created_date = int(datetime.now().strftime("%Y%m%d"))
 
-        # created_date
-        await self.conn.prisma.user_dates.create(
-            {"cod_date": created_date, "cod_user": user.cod_user, "cod_description": 1}
-        )
-        # updated_date
-        await self.conn.prisma.user_dates.create(
-            {"cod_date": created_date, "cod_user": user.cod_user, "cod_description": 2}
-        )
-        # birthday
-        await self.conn.prisma.user_dates.create(
-            {"cod_date": birthday, "cod_user": user.cod_user, "cod_description": 3}
-        )
+        try:
+            # created_date
+            await self.conn.prisma.user_dates.create(
+                {
+                    "cod_date": created_date,
+                    "cod_user": user.cod_user,
+                    "cod_description": 1,
+                }
+            )
+            # updated_date
+            await self.conn.prisma.user_dates.create(
+                {
+                    "cod_date": created_date,
+                    "cod_user": user.cod_user,
+                    "cod_description": 2,
+                }
+            )
+            # Birthday
+            await self.conn.prisma.user_dates.create(
+                {"cod_date": birthday, "cod_user": user.cod_user, "cod_description": 3}
+            )
+        except Exception as e:
+            raise AuthRegisterError(
+                f"Unexpected error saving user dates for {user_register.username}"
+            ) from e
 
         return user
