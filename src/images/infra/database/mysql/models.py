@@ -1,7 +1,5 @@
 from datetime import date
 from typing import List
-from uuid import UUID as PUUID
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Date, ForeignKey, Integer, String, Text
 
@@ -33,19 +31,17 @@ class DatesModel(Base):
 class ImagesModel(Base):
     __tablename__ = "images"
 
-    cod_image: Mapped[PUUID] = mapped_column(UUID, primary_key=True)
+    cod_image: Mapped[str] = mapped_column(String(36), primary_key=True)
     cod_ubi: Mapped[int] = mapped_column(
         ForeignKey("ubications.cod_ubi"), nullable=False
     )
-    cod_user: Mapped[PUUID] = mapped_column(UUID, nullable=False)
+    cod_user: Mapped[str] = mapped_column(String(36), nullable=False)
     image_path: Mapped[str] = mapped_column(Text, nullable=False)
     uploaded_at: Mapped[int] = mapped_column(
         ForeignKey("dates.cod_date"), nullable=False
     )
 
-    dates: Mapped["DatesModel"] = relationship(
-        "DatesModel", back_populates="images"
-    )
+    dates: Mapped["DatesModel"] = relationship("DatesModel", back_populates="images")
 
     ubication: Mapped["UbicationsModel"] = relationship(
         "UbicationsModel", back_populates="images"
