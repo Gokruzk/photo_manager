@@ -1,7 +1,7 @@
-from datetime import date
-from typing import Optional, TypeVar
 from uuid import UUID
+from datetime import date
 from pydantic import BaseModel
+from typing import Optional, TypeVar
 
 T = TypeVar("T")
 
@@ -17,13 +17,15 @@ class Dates(BaseModel):
 
 
 class UploadImage(BaseModel):
-    cod_user:   UUID
-    cod_ubi:    int
+    cod_image: UUID
+    cod_ubi: int
+    cod_user: UUID
     image_path: str
+    uploaded_at: int
 
 
 class Image(UploadImage):
-    cod_image:  UUID
+    cod_image: UUID
     uploaded_at: int
 
 
