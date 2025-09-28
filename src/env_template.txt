@@ -2,12 +2,12 @@
 # ENVIRONMENT SETTINGS
 # ============================
 
-# Servidor
+# Server
 PORT=
 ENVIRONMENT=# development | production
 
+# Database
 DB_TYPE=# postgres | mysql
-# DB
 DB_USER=
 DB_PASSWORD=
 DB_POSTGRES_HOST=
