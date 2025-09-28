@@ -13,30 +13,25 @@ class Base(AsyncAttrs, DeclarativeBase):
     Declarative Base class for defining SQLAlchemy ORM models.
     All database models should inherit from this class.
     """
+
     pass
 
 
-class SQLAlchemyConnection:
+class SQLAlchemyManager:
     """
     Handles asynchronous connection management to a database
     using SQLAlchemy AsyncIO engine and sessions.
     """
 
     def __init__(self):
-        self.db_url = (DBConfig.mysql_url())
+        self.db_url = DBConfig.mysql_url()
 
         # Create async engine for database communication
-        self.engine = create_async_engine(
-            self.db_url,
-            echo=False,
-            future=True
-        )
+        self.engine = create_async_engine(self.db_url, echo=False, future=True)
 
         # Create session factory bound to the engine
         self.async_session = async_sessionmaker(
-            bind=self.engine,
-            class_=AsyncSession,
-            expire_on_commit=False
+            bind=self.engine, class_=AsyncSession, expire_on_commit=False
         )
 
     async def test_db_connection(self):
@@ -59,17 +54,10 @@ class SQLAlchemyConnection:
         finally:
             await self.engine.dispose()
 
-    async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
+    async def create_session(self) -> AsyncSession:
         """
-        Provides an asynchronous SQLAlchemy session.
-
-        Usage:
-            Used mainly for dependency injection in API endpoints
-            (e.g., FastAPI `Depends`) to interact with the database.
+        Creates and returns an AsyncSession that must be
+        closed manually when no longer needed.
         """
-        async with self.async_session as session:
-            try:
-                yield session
-            except:
-                await session.rollback()
-                raise
+        session = self.async_session()
+        return session
