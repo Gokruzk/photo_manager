@@ -24,7 +24,7 @@ class SQLAlchemyManager:
     """
 
     def __init__(self):
-        self.db_url = DBConfig.mysql_url()
+        self.db_url = DBConfig.mysql_images_url()
 
         # Create async engine for database communication
         self.engine = create_async_engine(self.db_url, echo=False, future=True)

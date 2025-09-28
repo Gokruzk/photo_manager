@@ -28,12 +28,20 @@ class DBConfig:
         return getenv("DB_TYPE")
 
     @staticmethod
-    def mysql_url() -> str:
-        return getenv("MYSQL_URL")
+    def mysql_auth_url() -> str:
+        return getenv("MYSQL_AUTH_URL")
 
     @staticmethod
-    def postgres_url() -> str:
-        return getenv("POSTGRES_URL")
+    def mysql_images_url() -> str:
+        return getenv("MYSQL_IMAGES_URL")
+
+    @staticmethod
+    def postgres_auth_url() -> str:
+        return getenv("POSTGRES_AUTH_URL")
+
+    @staticmethod
+    def postgres_images_url() -> str:
+        return getenv("POSTGRES_IMAGES_URL")
 
 
 class JWTConfig:
