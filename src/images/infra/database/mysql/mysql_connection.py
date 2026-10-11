@@ -1,9 +1,9 @@
 from sqlalchemy import text
 from colorama import Fore, Style
-from typing import AsyncGenerator
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import (create_async_engine, async_sessionmaker,
+                                    AsyncSession)
 
 from config.config import DBConfig
 

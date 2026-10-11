@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from pathlib import Path as pt
 from images.app.use_cases.image_service import ImageService
 from images.infra.database.mysql.models import ImagesModel
-from images.infra.web.dependencies import get_image_repository
+from images.infra.web.dependencies import get_image_service
 from images.infra.web.schemas import ResponseSchema
 from fastapi import (
     APIRouter,
@@ -40,18 +40,17 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 
 
 @router.get(
-    path="/{cod_user}",
+    path="/user/{cod_user}",
     response_model=ResponseSchema,
     response_model_exclude_none=True,
     status_code=status.HTTP_200_OK,
 )
 async def find_by_user(
     cod_user: str = Path(..., alias="cod_user"),
-    repository=Depends(get_image_repository),
-    current_user=Depends(SessionManager.get_current_user),
+    #   current_user=Depends(SessionManager.get_current_user),
 ) -> ResponseSchema:
 
-    service = ImageService(repository)
+    service = await get_image_service()
 
     try:
         images = await service.find_by_user(cod_user)
@@ -62,13 +61,42 @@ async def find_by_user(
             detail=f"No images found for user {cod_user}",
         )
     except Exception as e:
-        logger.exception("Unexpected error retrieving images for user %s", cod_user)
+        logger.exception(
+            "Unexpected error retrieving images for user %s", cod_user)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred while retrieving images",
         )
 
     return ResponseSchema(detail="Images successfully retrieved", result=images)
+
+
+@router.get(path="/{cod_image}", response_model_exclude_none=True, status_code=status.HTTP_200_OK)
+async def find_by_cod(cod_image: str = Path(..., alias="cod_image"),
+                      # current_user=Depends(SessionManager.get_current_user),
+                      ) -> ResponseSchema:
+
+    service = await get_image_service()
+
+    try:
+        image = await service.find_by_cod(cod_image)
+
+    except ImageNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Image with id {cod_image} not found",
+        )
+
+    except Exception as e:
+        print(e)
+        logger.exception(
+            "Unexpected error retrieving image")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred while retrieving images",
+        )
+
+    return ResponseSchema(detail="Images successfully retrieved", result=image)
 
 
 @router.post(
@@ -78,27 +106,27 @@ async def upload(
     cod_user: UUID = Form(...),
     cod_ubi: int = Form(...),
     file: UploadFile = File(...),
-    repository=Depends(get_image_repository),
-    current_user=Depends(SessionManager.get_current_user),
+    #   current_user=Depends(SessionManager.get_current_user),
 ) -> ResponseSchema:
 
     ext = file.filename.split(".")[-1].lower()
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid file extension: .{ext}. Allowed: {ALLOWED_EXTENSIONS}",
+            detail=f"Invalid file extension: .{
+                ext}. Allowed: {ALLOWED_EXTENSIONS}",
         )
 
     contents = await file.read()
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File too large. Max size allowed is 5 MB",
+            detail="File too large. Max size allowed is 5 MB",
         )
     # Reset file pointer
     file.file.seek(0)
 
-    service = ImageService(repository)
+    service = await get_image_service()
 
     # Rename file
     file_type = file.content_type.split("/")[-1]
@@ -120,27 +148,30 @@ async def upload(
 
     except ImageUploadError:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to upload image"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to upload image"
         )
-
+    except OSError as e:
+        raise ImageUploadError(f"Filesystem error uploading image: {e}")
     except Exception as e:
-        logger.exception("Unexpected error uploading image for user %s", image.cod_user)
+        logger.exception(
+            "Unexpected error uploading image for user %s", image.cod_user)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred while uploading the image",
         )
 
-    return ResponseSchema(detail="Image successfully uploaded", result=image.image_path)
+    return ResponseSchema(detail="Image successfully uploaded",
+                          result=image.image_path)
 
 
 @router.delete(path="/{cod_image}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete(
     cod_image: str = Path(..., alias="cod_image"),
-    repository=Depends(get_image_repository),
-    current_user=Depends(SessionManager.get_current_user),
+    #   current_user=Depends(SessionManager.get_current_user),
 ) -> None:
 
-    service = ImageService(repository)
+    service = await get_image_service()
 
     try:
         await service.delete(cod_image)
@@ -153,7 +184,8 @@ async def delete(
 
     except ImageDeletedError:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to delete image due"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to delete image"
         )
 
     except Exception as e:

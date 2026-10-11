@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Path, status, HTTPException
 
 from auth.app.use_cases import UserService
 from auth.utils.managers import SessionManager
-from auth.infra.web.dependencies import get_user_repository
+from auth.infra.web.dependencies import get_user_repositories
 from auth.infra.web.schemas import CurrentUser, Repositories, ResponseSchema, UpdateUser
 from auth.domain.exceptions.exceptions import (
     AuthUserDeleteError,
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
     status_code=status.HTTP_200_OK,
 )
 async def find_all(
-    repositories: Repositories = Depends(get_user_repository),
+    repositories: Repositories = Depends(get_user_repositories),
     current_user: CurrentUser = Depends(SessionManager.get_current_user),
 ) -> ResponseSchema:
     service = UserService(repositories.user_repo)
@@ -54,7 +54,7 @@ async def find_all(
 )
 async def find_by_username(
     username: str = Path(..., alias="username"),
-    repositories: Repositories = Depends(get_user_repository),
+    repositories: Repositories = Depends(get_user_repositories),
     current_user: CurrentUser = Depends(SessionManager.get_current_user),
 ) -> ResponseSchema:
     service = UserService(repositories.user_repo)
@@ -81,7 +81,7 @@ async def find_by_username(
 async def update(
     data: UpdateUser,
     username: str = Path(..., alias="username"),
-    repositories: Repositories = Depends(get_user_repository),
+    repositories: Repositories = Depends(get_user_repositories),
     current_user=Depends(SessionManager.get_current_user),
 ) -> ResponseSchema:
 
@@ -115,7 +115,7 @@ async def update(
 @router.delete(path="/{username}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete(
     username: str = Path(..., alias="username"),
-    repositories: Repositories = Depends(get_user_repository),
+    repositories: Repositories = Depends(get_user_repositories),
     current_user=Depends(SessionManager.get_current_user),
 ) -> None:
 

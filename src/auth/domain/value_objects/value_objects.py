@@ -59,25 +59,12 @@ class DateCod:
 
 
 @dataclass(frozen=True)
-class DateCod:
-    value: int
-
-    def __post_init__(self):
-        if not (20000100 < self.value < 21001232):
-            raise ValueError("DateCod must be a valid date in yyyymmdd format")
-
-    def __str__(self) -> str:
-        return str(self.value)
-
-
-@dataclass(frozen=True)
 class DateDescription:
     value: str
 
     def __post_init__(self):
         if not (1 <= len(self.value) <= 8):
-            raise ValueError(
-                "The date description length must be between 1 and 8")
+            raise ValueError("The date description length must be between 1 and 8")
 
     def __str__(self) -> str:
         return self.value

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 
 from auth.utils.managers import TokenManager
 from auth.app.use_cases.auth_service import AuthService
-from auth.infra.web.dependencies import get_user_repository
+from auth.infra.web.dependencies import get_user_repositories
 from auth.infra.web.schemas import RegisterUser, Repositories, Token, User
 from auth.domain.exceptions.exceptions import (
     AuthLoginError,
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 @router.post(path="/login", response_model=Token, status_code=status.HTTP_200_OK)
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    repositories: Repositories = Depends(get_user_repository),
+    repositories: Repositories = Depends(get_user_repositories),
 ) -> Token:
     user_repo = repositories.user_repo
     auth_repo = repositories.auth_repo
@@ -59,9 +59,9 @@ async def login(
 
 @router.post(path="", status_code=status.HTTP_201_CREATED)
 async def register(
-    data: RegisterUser, repositories: Repositories = Depends(get_user_repository)
+    data: RegisterUser, repositories: Repositories = Depends(get_user_repositories)
 ) -> Token:
-
+    print(data)
     user_repo = repositories.user_repo
     auth_repo = repositories.auth_repo
 
@@ -78,17 +78,11 @@ async def register(
             )
         )
 
-    except AuthRegisterError:
+    except AuthRegisterError as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to register the user {data.username}",
-        )
-
-    except Exception as e:
-        logger.exception("Unexpected error registering user %s", data.username)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An unexpected error occurred while registering the user",
         )
 
     access_token = TokenManager.create_access_token(

@@ -22,13 +22,15 @@ class PrismaUserRepository:
         except AuthUserNotFoundError:
             raise
         except Exception as e:
-            raise AuthUserNotFoundError("Unexpected error fetching all users") from e
+            raise AuthUserNotFoundError(
+                "Unexpected error fetching all users") from e
 
     async def find_by_username(self, username: str) -> UserRetrieve:
         try:
             user = await self.conn.prisma.user.find_first(where={"username": username})
             if not user:
-                raise AuthUserNotFoundError(f"The user {username} does not exist")
+                raise AuthUserNotFoundError(
+                    f"The user {username} does not exist")
             return user
         except AuthUserNotFoundError:
             raise
@@ -50,7 +52,8 @@ class PrismaUserRepository:
                 where={"username": username},
             )
             if not user:
-                raise AuthUserUpdateError(f"Error updating the user {username}")
+                raise AuthUserUpdateError(
+                    f"Error updating the user {username}")
             return user
         except AuthUserUpdateError:
             raise
@@ -61,9 +64,28 @@ class PrismaUserRepository:
 
     async def delete(self, username: str) -> UserRetrieve:
         try:
-            user = await self.conn.prisma.user.delete(where={"username": username})
+            result = await self.find_by_username(username)
+
+            rows = await self.conn.prisma.user_dates.find_many(
+                where={"cod_user": result.cod_user}
+            )
+            # delete user_dates
+            for row in rows:
+                await self.conn.prisma.user_dates.delete(
+                    where={
+                        "cod_date_cod_user_cod_description": {
+                            "cod_date": row.cod_date,
+                            "cod_user": row.cod_user,
+                            "cod_description": row.cod_description,
+                        }
+                    }
+                )
+
+            user = await self.conn.prisma.user.delete(where={"cod_user": result.cod_user})
+
             if not user:
-                raise AuthUserDeleteError(f"Error deleting the user {username}")
+                raise AuthUserNotFoundError(
+                    f"Error deleting the user {username}")
             return user
         except AuthUserDeleteError:
             raise

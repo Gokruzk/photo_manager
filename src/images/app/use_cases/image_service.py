@@ -19,7 +19,8 @@ class ImageService:
             images = await self.repository.find_by_user(cod_user)
 
             if not images:
-                raise ImageNotFoundError(f"No images found for user {cod_user}")
+                raise ImageNotFoundError(
+                    f"No images found for user {cod_user}")
 
             return images
 
@@ -35,7 +36,8 @@ class ImageService:
             image = await self.repository.find_by_cod(cod_image)
 
             if not image:
-                raise ImageNotFoundError(f"The image with id {cod_image} not found")
+                raise ImageNotFoundError(f"The image with id {
+                                         cod_image} not found")
 
             return image
 
@@ -52,7 +54,8 @@ class ImageService:
 
             if not image:
                 raise ImageUploadError(
-                    f"Unexpected error uploading image for user {upload_image.cod_user}"
+                    f"Unexpected error uploading image for user {
+                        upload_image.cod_user}"
                 )
 
             return image
@@ -61,7 +64,8 @@ class ImageService:
             raise
         except Exception as e:
             raise ImageUploadError(
-                f"Unexpected error uploading image for user {upload_image.cod_user}"
+                f"Unexpected error uploading image for user {
+                    upload_image.cod_user}"
             ) from e
 
     async def delete(self, cod_image: UUID) -> Image:

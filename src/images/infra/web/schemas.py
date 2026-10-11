@@ -1,22 +1,26 @@
 from uuid import UUID
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, TypeVar
 
 T = TypeVar("T")
 
 
-class Ubication(BaseModel):
+class BaseDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Ubication(BaseDTO):
     cod_ubi: int
     country: str
 
 
-class Dates(BaseModel):
+class Dates(BaseDTO):
     cod_date: int
     day: date
 
 
-class UploadImage(BaseModel):
+class UploadImage(BaseDTO):
     cod_image: UUID
     cod_ubi: int
     cod_user: UUID
@@ -25,10 +29,9 @@ class UploadImage(BaseModel):
 
 
 class Image(UploadImage):
-    cod_image: UUID
-    uploaded_at: int
+    pass
 
 
-class ResponseSchema(BaseModel):
+class ResponseSchema(BaseDTO):
     detail: str
     result: Optional[T] = None

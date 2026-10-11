@@ -1,9 +1,10 @@
 from config.config import DBConfig
-from images.app.ports.image_repository import ImageRepository
+from images.app.use_cases.image_service import ImageService
 from images.infra.database.mysql.mysql_connection import SQLAlchemyManager
 from images.infra.database.mysql.mysql_repository import SQLAlchemyRepository
 from images.infra.database.postgres.prisma_connection import PrismaManager
 from images.infra.database.postgres.postgres_repository import PrismaImageRepository
+from contextlib import asynccontextmanager
 
 
 async def get_postgres_connection() -> PrismaManager:
@@ -21,16 +22,16 @@ async def get_mysql_connection():
     return conn
 
 
-async def get_image_repository() -> ImageRepository:
+async def get_image_service() -> ImageService:
     db_type = DBConfig.db()
 
     if db_type == "postgres":
         conn = await get_postgres_connection()
-        repo = PrismaImageRepository(conn)
-        return repo
+        return ImageService(PrismaImageRepository(conn))
     elif db_type == "mysql":
         conn = await get_mysql_connection()
-        repo = SQLAlchemyRepository(await conn.create_session())
-        return repo
+        db = await conn.create_session()
+        return ImageService(SQLAlchemyRepository(db))
+
     else:
         raise ValueError(f"Unsupported database type: {db_type}")

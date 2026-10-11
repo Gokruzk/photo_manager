@@ -56,17 +56,3 @@ class JWTConfig:
     @staticmethod
     def token_expire() -> int:
         return int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 120)
-
-
-class JWTConfig:
-    @staticmethod
-    def alogrithm() -> str:
-        return getenv("ALGORITHM") or "HS256"
-
-    @staticmethod
-    def secret_key() -> str:
-        return getenv("SECRET_KEY") or ""
-
-    @staticmethod
-    def token_expire() -> int:
-        return int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 120)

@@ -1,0 +1,65 @@
+from config.config import DBConfig
+from sqlalchemy import text
+from colorama import Fore, Style
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.ext.asyncio import (create_async_engine,
+                                    async_sessionmaker, AsyncSession)
+
+
+class Base(AsyncAttrs, DeclarativeBase):
+    """
+    Declarative Base class for defining SQLAlchemy ORM models.
+    All database models should inherit from this class.
+    """
+
+    pass
+
+
+class SQLAlchemyManager:
+    """
+    Handles asynchronous connection management to a database
+    using SQLAlchemy AsyncIO engine and sessions.
+    """
+
+    def __init__(self):
+        self.db_url = DBConfig.mysql_auth_url()
+
+        # Create async engine for database communication
+        self.engine = create_async_engine(self.db_url, echo=False, future=True)
+
+        # Create session factory bound to the engine
+        self.async_session = async_sessionmaker(
+            bind=self.engine, class_=AsyncSession, expire_on_commit=False
+        )
+
+    async def test_db_connection(self):
+        """
+        Executes a simple SELECT statement to verify
+        that the database connection is working.
+        """
+        try:
+            async with self.async_session as session:
+                await session.execute(text("SELECT 1"))
+                print(
+                    f"\n{Fore.GREEN}INFO:{Style.RESET_ALL} "
+                    f"    Test DB connection successfully\n"
+                )
+        except Exception as e:
+            print(
+                f"\n{Fore.RED}ERROR:{Style.RESET_ALL} "
+                f"Test DB connection failed: {e}\n"
+            )
+        finally:
+            await self.engine.dispose()
+
+    async def create_session(self) -> AsyncSession:
+        """
+        Creates and returns an AsyncSession that must be
+        closed manually when no longer needed.
+        """
+        session = self.async_session()
+        return session
+
+    async def close_session(self):
+        await self.engine.dispose()

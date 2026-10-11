@@ -41,7 +41,8 @@ class ImagesModel(Base):
         ForeignKey("dates.cod_date"), nullable=False
     )
 
-    dates: Mapped["DatesModel"] = relationship("DatesModel", back_populates="images")
+    dates: Mapped["DatesModel"] = relationship(
+        "DatesModel", back_populates="images")
 
     ubication: Mapped["UbicationsModel"] = relationship(
         "UbicationsModel", back_populates="images"

@@ -43,7 +43,7 @@ class AuthService:
             user_found = await self.user_repo.find_by_username(user_register.username)
 
             if user_found:
-                raise AuthRegisterError(
+                raise AuthUserNotFoundError(
                     f"The user {user_register.username} already exists"
                 )
 
@@ -51,7 +51,8 @@ class AuthService:
 
             if not user:
                 raise AuthRegisterError(
-                    f"Unexpected error registering the user {user_register.username}"
+                    f"Unexpected error registering the user {
+                        user_register.username}"
                 )
 
             return user
@@ -60,5 +61,6 @@ class AuthService:
             raise
         except Exception as e:
             raise AuthRegisterError(
-                f"Unexpected error registering the user {user_register.username}"
+                f"Unexpected error registering the user {
+                    user_register.username}"
             ) from e

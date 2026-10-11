@@ -1,3 +1,4 @@
+from uuid import uuid4
 from datetime import datetime
 
 from auth.infra.web.schemas import AuthenticatedUser, RegisterUser, User
@@ -32,7 +33,7 @@ class PrismaAuthRepository:
 
     async def register(self, user_register: RegisterUser) -> AuthenticatedUser:
         from auth.utils.managers import PasswordManager
-
+        print(user_register)
         try:
             user = await self.conn.prisma.user.create(
                 data={
@@ -44,10 +45,7 @@ class PrismaAuthRepository:
                 }
             )
         except Exception as e:
-            raise AuthRegisterError(
-                f"Unexpected error registering the user {user_register.username}"
-            ) from e
-
+            print(e)
         # dates: birtday and created/updated timestamps
         birthday = int(user_register.birthdate.strftime("%Y%m%d"))
         created_date = int(datetime.now().strftime("%Y%m%d"))
@@ -75,7 +73,8 @@ class PrismaAuthRepository:
             )
         except Exception as e:
             raise AuthRegisterError(
-                f"Unexpected error saving user dates for {user_register.username}"
+                f"Unexpected error saving user dates for {
+                    user_register.username}"
             ) from e
 
         return user

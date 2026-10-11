@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, ExpiredSignatureError, JWTError
 
 from config.config import JWTConfig
-from auth.infra.web.dependencies import get_user_repository
+from auth.infra.web.dependencies import get_user_repositories
 from auth.domain.exceptions.exceptions import AuthUserNotFoundError
 from auth.infra.web.schemas import CurrentUser, Repositories, ResponseSchema, TokenData
 
@@ -88,7 +88,7 @@ class SessionManager:
     @staticmethod
     async def get_current_user(
         token: str = Depends(oauth2_scheme),
-        repositories: Repositories = Depends(get_user_repository),
+        repositories: Repositories = Depends(get_user_repositories),
     ) -> CurrentUser:
 
         token_data = TokenManager.verify_token(token)

@@ -24,20 +24,18 @@ def init_app():
                 f"\n{Fore.GREEN}{Style.BRIGHT}Server started on port {ServerConfig.port()}\n"
             )
             yield
-            print(
-                f"\n{Fore.GREEN}{Style.BRIGHT}Server shutdown\n"
-            )
+            print(f"\n{Fore.GREEN}{Style.BRIGHT}Server shutdown\n")
         except Exception as e:
             print(f"\n{Fore.RED}Error: {str(e)}\n")
         finally:
-            print(
-                f"\n{Fore.YELLOW}{Style.BRIGHT}Server Shutdown\n"
-            )
+            print(f"\n{Fore.YELLOW}{Style.BRIGHT}Server Shutdown\n")
 
     # Docs setting
     docs_url = "/docs" if ServerConfig.environment() == "development" else None
     redoc_url = "/redoc" if ServerConfig.environment() == "development" else None
-    openapi_url = "/api/openapi.json" if ServerConfig.environment() == "development" else None
+    openapi_url = (
+        "/api/openapi.json" if ServerConfig.environment() == "development" else None
+    )
 
     app = FastAPI(
         title="Gokruzk",
@@ -88,12 +86,19 @@ async def root():
         "message": "Photo Manager API",
         "version": "0.0.1",
         "docs": (
-            "/docs" if ServerConfig.environment() == "development" else "Not available in production"
+            "/docs"
+            if ServerConfig.environment() == "development"
+            else "Not available in production"
         ),
         "health": "/health",
     }
 
+
 if __name__ == "__main__":
     uvicorn.run(
-        app="main:app", host="0.0.0.0", port=ServerConfig.port(), reload=True, timeout_keep_alive=300
+        app="main:app",
+        host="0.0.0.0",
+        port=ServerConfig.port(),
+        reload=True,
+        timeout_keep_alive=300,
     )
